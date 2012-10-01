@@ -51,7 +51,7 @@ if(!class_exists('TGlobal'))
         /**
          * Real GET parameters (as seen on browser's address bar)
          * Reason: Some server URL redirects (e.g. using htaccess in Apache) confuse PHP, so $_GET doesn't always work
-         * If you need the params from a redirect, use $_GET
+         * If you need the params from a redirect, use TGlobal::script()
          * @param string $param
          * @param string $default What should be returned if there param was not found
          * @return string
@@ -59,6 +59,18 @@ if(!class_exists('TGlobal'))
         public static function get($param, $default='') {
                if(!isset(self::$get[$param])) return $default;
                return self::$get[$param];
+        }
+        
+        /**
+         * GET parameters recived by PHP. Most times, it's the same as TGlobal::get()
+         * @see TGlobal::get
+         * @param string $param
+         * @param string $default What should be returned if there param was not found
+         * @return string
+         */
+        public static function script($param, $default='') {
+               if(!isset($_GET[$param])) return $default;
+               return $_GET[$param];
         }
 
         /**
