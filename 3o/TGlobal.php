@@ -100,12 +100,12 @@ if(!class_exists('TGlobal'))
          * @param string $param
          * @return string
          */
-        public static function session($param)
+        public static function session($param, $default = '')
         {
             // start the session if it is not started
             if (session_id() === "") session_start ();
             
-            if (!isset($_SESSION[$param])) return "";
+            if (!isset($_SESSION[$param])) return $default;
             else return $_SESSION[$param];
         }
         
