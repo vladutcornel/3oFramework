@@ -670,7 +670,7 @@ if (!function_exists('readJSONCache')) {
                 // == works here insted of === because empty string is equaly bad
                 throw new Exception;
             }
-            $json = json_decode($contents);
+            $json = unserialize($contents);
             if (false == $json)
             {
                 throw new Exception;
@@ -686,7 +686,7 @@ if (!function_exists('readJSONCache')) {
             {
                 throw new Exception;
             }
-            return $json->data;
+            return unserialize($json->data);
         }  catch (Exception $e){
             return false;
         }
@@ -698,10 +698,11 @@ if (!function_exists('saveJSONCache'))
     function saveJSONCache($data, $file, $cache_interval) {
         $interval = string2date($cache_interval);
         $expire = $interval->format(DateTime::ATOM);
+        
         $obj = (object) array(
             'timeout'=>$expire,
-            'data'=> $data
+            'data'=> serialize($data)
         );
-        file_put_contents($file, json_encode($obj));
+        file_put_contents($file, serialize($obj));
     }
 }
