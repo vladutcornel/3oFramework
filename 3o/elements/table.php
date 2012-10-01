@@ -1,6 +1,13 @@
 <?php
-require_once "lib/HtmlElement.php";
 
+require_once realpath(__DIR__.'/../HtmlElement.php');
+
+/**
+ * A HTML table.
+ * It includes simple manipulation of the Table cells and 3 sections (thead, tbody, tfoot)
+ * @author Cornel Borina <cornel@scoalaweb.com>
+ * @package 3oScript
+ */
 class Table extends HtmlElement {
     const HEAD = "head";
     const BODY = "body";

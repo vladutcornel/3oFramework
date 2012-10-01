@@ -1,6 +1,11 @@
 <?php
-require_once('lib/HtmlElement.php');
+require_once realpath(__DIR__.'/../HtmlElement.php');
 
+/**
+ * A page anchor
+ * @author Cornel Borina <cornel@scoalaweb.com>
+ * @package 3oScript
+ */
 class Link extends HtmlElement{
 
     public function __construct($destination, $content = NULL, $id = ''){

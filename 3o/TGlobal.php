@@ -8,7 +8,8 @@
  * 
  * For the GET parameters, the real browser sent parameters are used, since PHP
  * may get confused if a redirect script is used (eg. using mod_rewrite in Apache)
- * @author cornel
+ * 
+ * @author Cornel Borina <cornel@scoalaweb.com>
  * @package 3oScript
  */
 if(!class_exists('TGlobal'))

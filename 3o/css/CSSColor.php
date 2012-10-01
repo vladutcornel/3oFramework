@@ -172,7 +172,8 @@ class CSSColor
 	$b = $this->blue / 255.0;
 	$H = 0;
 	$S = 0;
-	$L = 0;
+        $L = 0;
+        
 	$min = min(min($r, $g),$b);
 	$max = max(max($r, $g),$b);
 	$delta = $max - $min;
@@ -301,6 +302,37 @@ class CSSColor
             $blue = '0'.$blue;
        }
        return "#{$red}{$green}{$blue}";
+    }
+    
+    /**
+     * Return a IE-filter compatible color
+     * @return string
+     */
+    public function getARGB()
+    {
+        // SR = (R-R%16)/16
+       
+       $red = dechex($this->red);
+       if (strlen($red) == 1){
+            $red = '0'.$red;
+       }
+       
+       $green = dechex($this->green);
+       if (strlen($green) == 1){
+            $green = '0'.$green;
+       }
+       
+       $blue = dechex($this->blue);
+       if (strlen($blue) == 1){
+            $blue = '0'.$blue;
+       }
+       
+       $alpha = dechex(intval($this->alpha * 255));
+       if (strlen($alpha) == 1)
+       {
+           $alpha = '0'.$alpha;
+       }
+       return "#{$alpha}{$red}{$green}{$blue}";
     }
     
     /**
@@ -470,18 +502,34 @@ class CSSColor
         return $this->alpha;
     }
     
-    public function __toString(){
+    /**
+     * Get the best CSS representation for this color
+     * @return string 
+     */
+    public function getCSS(){
+        // the color is completly transparent
         if ($this->alpha == 0) return "transparent";
+        
+        // the color is opaque (no transparency)
         if ($this->alpha == 1){
             if ($this->red%16 == intval($this->red/16) &&
                 $this->green%16 == intval($this->green/16) &&
                 $this->blue%16 == intval($this->blue/16))
             {
+                // the color can be represented by 3 hex digits
                 return $this->getSimpleHex();
             }
+            
+            // the color can only acurately be reprezented by 6 hex-digits
             return $this->getLongHex();
         }
+        
+        // the color is semi-transparent
         return $this->getRGBA();
+    }
+    
+    public function __toString(){
+        return $this->getCSS();
     }
     
     public static $standard_colors = array(

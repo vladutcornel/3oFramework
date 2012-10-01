@@ -4,6 +4,8 @@ require_once __DIR__.'/TObject.php';
 
 /**
  * A generic SGML (XML or HTML) element
+ * @author Cornel Borina <cornel@scoalaweb.com>
+ * @package 3oScript
  */
 class Element extends TObject
 {

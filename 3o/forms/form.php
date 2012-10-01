@@ -1,11 +1,21 @@
 <?php
-require_once("lib/HtmlElement.php");
-require_once('lib/forms/textField.php');
-require_once('lib/forms/passwordField.php');
-require_once('lib/forms/button.php');
-require_once('lib/forms/textarea.php');
-require_once('lib/forms/hidden.php');
 
+require_once realpath(__DIR__.'/../HtmlElement.php');
+
+require_once realpath(__DIR__.'/..//forms/textField.php');
+require_once realpath(__DIR__.'/..//forms/passwordField.php');
+require_once realpath(__DIR__.'/..//forms/button.php');
+require_once realpath(__DIR__.'/..//forms/textarea.php');
+require_once realpath(__DIR__.'/..//forms/hidden.php');
+
+
+/**
+ * A HTML form element.
+ * It can set the value of a inner element. If the element does not exist,
+ * a hidden element with that name and value is created
+ * @author Cornel Borina <cornel@scoalaweb.com>
+ * @package 3oScript
+ */
 class Form extends HtmlElement{
     private $hidden = array();
     public function __construct($action, $method = 'get', $id=''){

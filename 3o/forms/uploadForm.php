@@ -1,6 +1,11 @@
 <?php
-require_once "lib/forms/form.php";
+require_once (__DIR__."/form.php");
 
+/**
+ * An Form ready for uploading files
+ * @author Cornel Borina <cornel@scoalaweb.com>
+ * @package 3oScript
+ */
 class UploadForm extends Form{
     
     public function __construct($action, $id=''){

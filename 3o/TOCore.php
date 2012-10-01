@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__.'/3o/TGlobal.php';
+require_once __DIR__.'/TGlobal.php';
 /**
  * The center of 3OScript redirect mechanism
  * It determines the php file that should be loaded.

@@ -1,6 +1,11 @@
 <?php
-include_once('lib/HtmlElement.php');
+require_once realpath(__DIR__.'/../HtmlElement.php');
 
+/**
+ * An element designed to be included in a form
+ * @author Cornel Borina <cornel@scoalaweb.com>
+ * @package 3oScript
+ */
 class FormElement extends HtmlElement{
     private $label;//Element
     private $tip;//Element

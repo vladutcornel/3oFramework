@@ -3,6 +3,8 @@
 /**
  * The basic library. implements the methods that should be loaded by any other classes
  * Pus some data that should be available anywhere
+ * @author Cornel Borina <cornel@scoalaweb.com>
+ * @package 3oScript
  */
 class TObject{
     /**

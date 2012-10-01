@@ -1,6 +1,8 @@
 <?php
 /**
  * Template for a database table model
+ * @author Cornel Borina <cornel@scoalaweb.com>
+ * @package 3oScript
  */
 class DBModel {
     /**

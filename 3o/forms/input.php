@@ -1,6 +1,12 @@
 <?php
-include_once('lib/forms/formElement.php');
+include_once realpath(__DIR__.'/../forms/formElement.php');
 
+/**
+ * An input form field
+ * 
+ * @author Cornel Borina <cornel@scoalaweb.com>
+ * @package 3oScript
+ */
 class Input extends FormElement{
     public function __construct($type, $name, $default = '', $id = ''){
         parent::__construct('input', $id);
