@@ -1,10 +1,11 @@
 <?php
+require_once realpath(__DIR__.'/../TObject.php');
 /**
  * Template for a database table model
  * @author Cornel Borina <cornel@scoalaweb.com>
  * @package 3oScript
  */
-class DBModel {
+class DBModel extends TObject {
     /**
      * Database object
      * @var TMysql The database
@@ -52,6 +53,9 @@ class DBModel {
      * General getter
      */
     public function getDBVar($var_name){
+//        if (method_exists($this, 'get'.  ucfirst($var_name))){
+//            return call_user_func(array($this, 'get'.  ucfirst($var_name)));
+//        }
         $var_name = strtolower($var_name);
         if(isset($this->$var_name))
             return $this->$var_name;
@@ -62,8 +66,12 @@ class DBModel {
      * General setter
      */
     public function setDBVar($var_name, $new_value){
-        $var_name = strtolower($var_name);
-        $this->$var_name = $new_value;
+//        if (method_exists($this, 'set'.  ucfirst($var_name))){
+//            call_user_func(array($this, 'set'.  ucfirst($var_name)), $new_value);
+//        } else{
+            $var_name = strtolower($var_name);
+            $this->$var_name = $new_value;
+//        }
         return $this;
     }
     
@@ -89,6 +97,35 @@ class DBModel {
         }
     }
     
+    /**
+     * Bypas the TObject default mechanism of throwing an exception when a object property is not set
+     * @param string $name
+     * @param string $value
+     */
+    public function __set($name, $value) {
+        try{
+            parent::__set($name, $value);
+        } catch(LogicException $e)
+        {
+            $this->setDBVar($name, $value);
+        }
+    }
+    
+    /**
+     * Bypas the TObject default mechanism of throwing an exception when a object property is not set
+     * @param string $name
+     * @param string $value
+     */
+    public function __get($name) {
+        try{
+            return parent::__get($name);
+        } catch(LogicException $e)
+        {
+            return $this->getDBVar($name);
+        }
+    }
+
+
     /**
      * Checks if the current table model has the requested field
      */
@@ -165,7 +202,7 @@ class DBModel {
         
         if (in_array('id', static::getFields()))
         {
-            $this->setId($db->insert_id);
+            $this->setId(self::$db->insert_id);
         }
     }
     
