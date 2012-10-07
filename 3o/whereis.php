@@ -25,6 +25,7 @@ $WHEREIS = array (
   'TMysql' => '/db/mysql/TMysql.php',
   'DatabaseException' => '/exceptions/DatabaseException.php',
   'DataTypeException' => '/exceptions/DataTypeException.php',
+  'UserInputException' => '/exceptions/UserInputException.php',
   'GenerateWhereis' => '/GenerateWhereis.php',
   'Element' => '/html/Element.php',
   'Link' => '/html/elements/Link.php',
