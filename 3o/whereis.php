@@ -1,3 +1,4 @@
+
 <?php
 /**
  * Helper file to locate all the framework classes - Auto generated
@@ -44,6 +45,7 @@ $WHEREIS = array (
   'TOCore' => '/TOCore.php',
 );
 
+
 function trio_autoload($class_name){
     global $WHEREIS;
     global $WHEREIS_USER;
@@ -87,6 +89,7 @@ function trio_whereis()
             $new_args[$args[$i-1]] = $args[$i];
         }
         trio_whereis($new_args);
+        return;
     }
     global $WHEREIS_USER;
     foreach($first_arg as $class=>$file)

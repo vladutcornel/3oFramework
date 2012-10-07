@@ -74,6 +74,7 @@ function trio_whereis()
             $new_args[$args[$i-1]] = $args[$i];
         }
         trio_whereis($new_args);
+        return;
     }
     global $WHEREIS_USER;
     foreach($first_arg as $class=>$file)
