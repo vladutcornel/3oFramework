@@ -11,7 +11,8 @@ class GenerateWhereis {
     function main(){
         $this->basedir = __DIR__;
         $this->read_dir();
-        echo $file = '<?php
+        
+        $file = '<?php
 /**
  * Helper file to locate all the framework classes - Auto generated
  * @package 3oScript
@@ -19,15 +20,23 @@ class GenerateWhereis {
  */
 $WHEREIS = '.\var_export($this->whereis, true).';
 
-define(\'TRIO_DIR\', __DIR__);
-
-function __autoload($class_name){
+function trio_autoload($class_name){
     global $WHEREIS;
     if (isset($WHEREIS[$class_name]))
     {
-        include TRIO_DIR.\'/\'.$WHEREIS[$class_name];
+        include TRIO_DIR.'/'.$WHEREIS[$class_name];
     }
-}';
+}
+/*
+ * Register autoload function and set it to prepand (3rd param) so other autoload functions can be declared
+ */
+spl_autoload_register (\'trio_autoload\', true, true);';
+        /*
+         * Only dump the file contents so we won't accidentaly overwrite important things
+         */
+        echo '<pre>';
+        highlight_string($file);
+        echo '</pre>';
     }
 
     /**

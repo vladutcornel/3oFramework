@@ -26,10 +26,14 @@ $WHEREIS = array (
   'DBModel' => '/db/DBModel.php',
 );
 
-function __autoload($class_name){
+function trio_autoload($class_name){
     global $WHEREIS;
     if (isset($WHEREIS[$class_name]))
     {
         include TRIO_DIR.'/'.$WHEREIS[$class_name];
     }
 }
+/*
+ * Register autoload function and set it to prepand (3rd param) so other autoload functions can be declared
+ */
+spl_autoload_register ('trio_autoload', true, true);
