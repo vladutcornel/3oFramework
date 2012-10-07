@@ -24,7 +24,7 @@ function trio_autoload($class_name){
     global $WHEREIS;
     if (isset($WHEREIS[$class_name]))
     {
-        include TRIO_DIR.'/'.$WHEREIS[$class_name];
+        include TRIO_DIR.\'/\'.$WHEREIS[$class_name];
     }
 }
 /*

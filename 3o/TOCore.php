@@ -1,4 +1,9 @@
 <?php
+
+if (!defined('SITE_ROOT')){
+	define('SITE_ROOT', $_SERVER['DOCUMENT_ROOT']);
+}
+
 define('TRIO_DIR', __DIR__);
 require_once TRIO_DIR.'/whereis.php';
 /**
@@ -15,6 +20,8 @@ class TOCore{
      * @staticvar array The extra params of the array
      */
     public static $params = array();
+	
+	public static $request;
 
     /**
      * This loads the requested page from a .php file
@@ -22,65 +29,65 @@ class TOCore{
      * @return The loaded filename, without extension
      */
     public static function load($page = ''){
-	// if there is no page, we use the index
+		// if there is no page, we use the index
         if($page == '') $page = 'index';
 
-	// get the virtual directories
-	$parts = explode('/',$page);
+		// get the virtual directories
+		$parts = explode('/',$page);
 
-	if (is_dir($page) && file_exists($page.'/index.php'))
-	{
-	    // a directory with index.php was requested
-	    $page.= '/index.php';
-	    $parts[]='index';
-	    include $page;
-	}
-        elseif(file_exists($page) && is_file($page))
-	{
-	    // load the requested file
-	    $fileinfo = pathinfo($page);
+		if (is_dir(SITE_ROOT.'/'.$page) && file_exists(SITE_ROOT.'/'.$page.'/index.php'))
+		{
+			// a directory with index.php was requested
+			$page.= '/index.php';
+			$parts[]='index';
+			include $page;
+		}
+		elseif(file_exists(SITE_ROOT.'/'.$page) && is_file(SITE_ROOT.'/'.$page))
+		{
+			// load the requested file
+			$fileinfo = pathinfo(SITE_ROOT.'/'.$page);
 
-	    $last = count($parts) - 1;
-	    $parts[$last] = $fileinfo['filename'];
+			$last = count($parts) - 1;
+			$parts[$last] = $fileinfo['filename'];
 
 
 
-	    if ($fileinfo['extension'] != 'php'){
-		// it's not a php script
-		header("Content-Type: ". mime_content_type($page));
-		echo file_get_contents($page);
+			if ($fileinfo['extension'] != 'php'){
+			// it's not a php script
+			header("Content-Type: ". mime_content_type(SITE_ROOT.'/'.$page));
+			echo file_get_contents(SITE_ROOT.'/'.$page);
 
-		die();
-	    }
+			die();
+			}
 
-	    include $page;
-	}
-	elseif(file_exists($page.'.php'))
-	{
-	    // the file was requested without .php extension
-	    include $page.'.php';
-	}
-	else
-	{
-	    // no luck so far, we try loading the parent directory
-	    $parent_dir = implode('/',array_slice($parts,0,-1));
-	    if ($parent_dir != '')
-	    {
-		array_unshift(self::$params,array_slice($parts,-1));
-		return self::load($parent_dir);
-	    }
+			include SITE_ROOT.'/'.$page;
+		}
+		elseif(file_exists(SITE_ROOT.'/'.$page.'.php'))
+		{
+			// the file was requested without .php extension
+			include SITE_ROOT.'/'.$page.'.php';
+		}
+		else
+		{
+			// no luck so far, we try loading the parent directory
+			$parent_dir = implode('/',array_slice($parts,0,-1));
+			if ($parent_dir != '')
+			{
+				array_unshift(self::$params,array_slice($parts,-1));
+				return self::load($parent_dir);
+			}
 
-	    if (file_exists("index.php"))
-	    {
-		// try to load the homepage.
-		return self::load("index");
-	    }
+			if (file_exists(SITE_ROOT.'/index.php'))
+			{
+				// try to load the homepage.
+				return self::load("index");
+			}
 
-	    // we still couldn't find a file to load
-	    echo '<p>Error:file not found</p>';
-	}
+			// we still couldn't find a file to load
+			echo '<p>Error:file not found</p>';
+		}
 
-	// return the filename, so we can figure the class to load
+		// return the filename, so we can figure the class to load
         return $parts[count($parts)-1];
     }
 
