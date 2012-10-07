@@ -1,5 +1,5 @@
 <?php
-
+require_once TRIO_DIR.'/whereis.php';
 /**
  * The basic library. implements the methods that should be loaded by any other classes
  * Pus some data that should be available anywhere
@@ -23,7 +23,7 @@ class TObject{
     public function toHtml(){
         return __CLASS__;
     }
-    
+
     /**
      * General getter
      * @param string $var_name
@@ -35,7 +35,7 @@ class TObject{
             return $this->$var_name;
         return FALSE;
     }
-    
+
     /**
      * General setter
      * @param string $var_name
@@ -47,7 +47,7 @@ class TObject{
         $this->$var_name = $new_value;
         return $this;
     }
-    
+
     /**
      * Add support for unimplemented setters and getters
      * @param string $function
@@ -62,23 +62,23 @@ class TObject{
         if ($is_getter){
             return $this->getVar(strtolower($matches['varname']));
         }
-        
+
         $is_boolean_getter = preg_match("/^is(?P<varname>[a-z_]+)$/i",$function, $matches);
         if ($is_boolean_getter){
             return $this->getVar(strtolower($matches['varname']))?true:false;
         }
-        
+
         $is_setter = preg_match("/^set(?P<varname>[a-z_]+)$/i",$function, $matches);
         if ($is_setter){
             return $this->setVar(strtolower($matches['varname']), $args[0]);
         }
-        
+
         throw new BadMethodCallException;
     }
-    
+
     /**
      * Getter for private members.
-     * The object properties shoud have eather getVarname() or get_varname() method 
+     * The object properties shoud have eather getVarname() or get_varname() method
      * implemented or else a LogicException exception is thrown
      * @param string $name
      * @return mixed
@@ -97,13 +97,19 @@ class TObject{
         {
             return call_user_func(array($this, $method));
         }
-        
+
+        // last chance: if the property was set, return the value
+        if (isset($this->$name))
+        {
+            return $this->$name;
+        }
+
         throw new LogicException;
     }
-    
+
     /**
      * Setter for private members
-     * The object properties shoud have eather a setVarname() or a set_varname() 
+     * The object properties shoud have eather a setVarname() or a set_varname()
      * method implemented or else a LogicException exception is thrown
      * @param string $name
      * @param mixed $value
@@ -123,7 +129,13 @@ class TObject{
         {
             return call_user_func(array($this, $method), $value);
         }
-        
+
+        // if the property doesn't exist, create one and give it the value
+        if (!isset($this->$name))
+        {
+            $this->$name = $value;
+        }
+
         throw new LogicException;
     }
 }

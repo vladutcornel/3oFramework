@@ -1,5 +1,6 @@
 <?php
-require_once realpath(__DIR__.'/../HtmlElement.php');
+
+require_once TRIO_DIR.'/whereis.php';
 
 /**
  * An element designed to be included in a form
@@ -17,9 +18,9 @@ class FormElement extends HtmlElement{
 
         $this->label = new Element('label');
         $this->label->setAttribute('for', $this->getId());
-    
+
         $this->tip = new Element('span',$this->getId().'tip');
-        
+
     }
 
     /**
@@ -45,7 +46,7 @@ class FormElement extends HtmlElement{
         $this->tip->setText($text);
         return $this;
     }
-    
+
     public function setValue($new_value) {
         $this->setAttribute('value', $new_value);
         return $this;
@@ -65,17 +66,17 @@ class FormElement extends HtmlElement{
         }
         return $html;
     }
-    
-    
+
+
     public function toCSS($echo = true){
         $css = $this->label->toCSS(false);
         $css.=parent::toCSS(false);
         $css.= $this->tip->toCSS(false);
-        
+
         if($echo) {
             echo $css;
         }
-        
+
         return $css;
     }
 }

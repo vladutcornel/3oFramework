@@ -1,5 +1,6 @@
 <?php
-require_once('lib/forms/input.php');
+
+require_once TRIO_DIR.'/whereis.php';
 
 define('BUTTON_SUBMIT', 'submit');
 define('BUTTON_STANDARD', 'button');
@@ -11,11 +12,11 @@ class Button extends Input{
         parent::__construct($type, $name, $default, $id);
 
     }
-    
+
     public function setLabel($text) {
         $this->setValue($text);
     }
-    
+
     /**
      * bypass the FormElement's Label+Info HTML
      */

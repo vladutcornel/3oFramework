@@ -1,5 +1,6 @@
 <?php
-require_once realpath(__DIR__.'/../HtmlElement.php');
+
+require_once TRIO_DIR.'/whereis.php';
 
 /**
  * A page anchor

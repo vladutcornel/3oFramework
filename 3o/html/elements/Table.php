@@ -1,6 +1,6 @@
 <?php
 
-require_once realpath(__DIR__.'/../HtmlElement.php');
+require_once TRIO_DIR.'/whereis.php';
 
 /**
  * A HTML table.
@@ -20,7 +20,7 @@ class Table extends HtmlElement {
      * @var int
      */
     private $numCols = 0;
-    
+
     /**
      * @var HtmlElement
      */
@@ -33,7 +33,7 @@ class Table extends HtmlElement {
      * @var HtmlElement
      */
     private $tbody;
-    
+
     /**
      * @var HtmlElement[][]
      */
@@ -42,18 +42,18 @@ class Table extends HtmlElement {
      * @var HtmlElement[][]
      */
     private $cells = array('head'=>array(),  'foot'=>array(), 'body'=>array());
-    
+
     public function __construct($id = '') {
         parent::__construct("table",$id);
         $this->thead = new HtmlElement("thead");
         $this->tfoot = new HtmlElement("tfoot");
         $this->tbody = new HtmlElement("tbody");
-        
+
         $this->addChild($this->thead);
         $this->addChild($this->tbody);
         $this->addChild($this->tfoot);
     }
-    
+
     /**
      * Gets the HtmlElement for the specified cell.
      * The table is automaticaly expanded to match the size
@@ -66,13 +66,13 @@ class Table extends HtmlElement {
         if ($row > $this->numRows[$region]){
             $this->expandRows($row - $this->numRows[$region], $region);
         }
-        
+
         if ($col > $this->numCols){
             $this->expandCells($col - $this->numCols);
         }
         return $this->cells[$region][$row-1][$col-1];
     }
-    
+
     /**
      * Expands the number of rows of thespcified region
      * @param int $delta the number of rows to be added
@@ -84,28 +84,28 @@ class Table extends HtmlElement {
         if ($region == Table::HEAD) {
             $cellTag = "th";
         }
-        
+
         for ($i = 0; $i < $delta; $i++){
             // create table row
             $row =
                 new HtmlElement("tr");
-            
+
             // create table cells for the row
             for ($col = 0; $col < $this->numCols; $col++){
                 $cell = new HtmlElement($cellTag);
                 $this->cells[$region][$this->numRows[$region]][$col] = $cell;
                 $row->addChild($cell);
             }
-            
+
             // register the row
             $this->rows[$region][$this->numRows[$region]] = $row;
             $parent->addChild($row);
-            
+
             // next row
             $this->numRows[$region] ++;
         }
     }
-    
+
     /**
      * Expands the number of columns for the specified region or for the entire table
      * @param int $delta the number of columns to be added
@@ -120,13 +120,13 @@ class Table extends HtmlElement {
             $this->numCols += $delta;
             return;
         }
-        
+
         $parent = $this->getRegionParent($region);
         $cellTag = "td";
         if (Table::HEAD == $region){
             $cellTag = "th";
         }
-        
+
         for ($rownr = 0; $rownr < $this->numRows[$region]; $rownr++){
             $row = $this->rows[$region][$rownr];
             for ($i = 0; $i < $delta; $i++) {
@@ -136,10 +136,10 @@ class Table extends HtmlElement {
                 $row->addChild($cell);
             }
         }
-        
-        
+
+
     }
-    
+
     /**
      * @return HtmlElement the corespunding thead,tbody or tfoot
      */

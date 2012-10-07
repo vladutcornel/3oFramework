@@ -1,14 +1,14 @@
 <?php
-
+require_once TRIO_DIR.'/whereis.php';
 /**
  * Wrapper for the PHP's global vars
- * If any of the requested params are not set, the methods will return an empty 
- * string, or, for the Get, Post and cookie, the programmer can specify the 
+ * If any of the requested params are not set, the methods will return an empty
+ * string, or, for the Get, Post and cookie, the programmer can specify the
  * default return value.
- * 
+ *
  * For the GET parameters, the real browser sent parameters are used, since PHP
  * may get confused if a redirect script is used (eg. using mod_rewrite in Apache)
- * 
+ *
  * @author Cornel Borina <cornel@scoalaweb.com>
  * @package 3oScript
  */
@@ -30,7 +30,7 @@ if(!class_exists('TGlobal'))
         private static $get;
 
         /**
-         * The request variables, cached by self::request() method 
+         * The request variables, cached by self::request() method
          * @see TGlobal::request()
          * @static
          * @var array
@@ -60,7 +60,7 @@ if(!class_exists('TGlobal'))
                if(!isset(self::$get[$param])) return $default;
                return self::$get[$param];
         }
-        
+
         /**
          * GET parameters recived by PHP. Most times, it's the same as TGlobal::get()
          * @see TGlobal::get
@@ -104,11 +104,11 @@ if(!class_exists('TGlobal'))
         {
             // start the session if it is not started
             if (session_id() === "") session_start ();
-            
+
             if (!isset($_SESSION[$param])) return $default;
             else return $_SESSION[$param];
         }
-        
+
         /**
          * Set a session variable
          * @param type $param
@@ -118,15 +118,15 @@ if(!class_exists('TGlobal'))
         {
             // start the session if it is not started
             if (session_id() === '') session_start ();
-            
+
             $_SESSION[$param] = $value;
         }
-        
+
         public static function unsetSession($param)
         {
             // start the session if it is not started
             if (session_id() === '') session_start ();
-            
+
             unset($_SESSION[$param]);
         }
 
@@ -151,7 +151,7 @@ if(!class_exists('TGlobal'))
             if (!isset($_SERVER[$param])) return "";
             else return $_SERVER[$param];
         }
-        
+
         /**
          * Get uploaded file data
          * @param string $param
@@ -195,28 +195,28 @@ if(!class_exists('TGlobal'))
                             $toreturn = self::get($param);
                             break 2;// exit foreach
                         }
-                        break; 
+                        break;
                     case 'p':
                         if ('' != self::post($param))
                         {
                             $toreturn = self::post($param);
                             break 2;// exit foreach
                         }
-                        break; 
+                        break;
                     case 'c':
                         if ('' != self::cookie($param))
                         {
                             $toreturn = self::cookie($param);
                             break 2;// exit foreach
                         }
-                        break; 
+                        break;
                     case 's':
                         if ('' != self::server($param))
                         {
                             $toreturn = self::server($param);
                             break 2;// exit foreach
                         }
-                        break;       
+                        break;
                 }
             }
 

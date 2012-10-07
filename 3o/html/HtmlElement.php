@@ -1,7 +1,6 @@
 <?php
-require_once __DIR__.'/Element.php';
-require_once __DIR.'/Style.php';
-require_once __DIR__.'/exceptions/DataTypeException.php';
+
+require_once TRIO_DIR.'/whereis.php';
 
 /**
  * A generic HTML Element
@@ -14,12 +13,12 @@ class HtmlElement extends Element{
      * @var Style The element's style
      */
     private $style;
-    
+
     /**
      * @var array Element's classes (class atribute)
      */
     private $classes = array();
-    
+
     /**
      * @param string $tagName
      * @param string $elementId
@@ -36,7 +35,7 @@ class HtmlElement extends Element{
 
         $this->style = new Style("#".$this->getId());
     }
-    
+
     /**
      * Registers a new Class for this element
      * @return HtmlElement $this
@@ -83,7 +82,7 @@ class HtmlElement extends Element{
     public function toHtml($echo = true){
         return $this->toCode($echo);
     }
-    
+
     /**
      * Fetch or just return the associated CSS styles for this element and it's children
      * @param boolean $echo true if he code should be printed
@@ -93,7 +92,7 @@ class HtmlElement extends Element{
         foreach(self::$childs as $child){
             $css.= $child['element']->toCSS(false);
         }
-        
+
         if ($echo) {
             echo $css;
         }
@@ -112,7 +111,7 @@ class HtmlElement extends Element{
         parent::addChild($child, $before, $position);
         return $this;
     }
-    
+
     /**
      * Provides a CSS-compatible #Selector
      */

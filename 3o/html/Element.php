@@ -1,6 +1,5 @@
 <?php
-
-require_once __DIR__.'/TObject.php';
+require_once TRIO_DIR.'/whereis.php';
 
 /**
  * A generic SGML (XML or HTML) element
@@ -13,43 +12,43 @@ class Element extends TObject
      * @var string The tag name
      */
     private $tag;
-    
+
     /**
      * @var array the descendents
      */
     protected $childs = array();
-    
+
     /**
      * @var string The string content of the element
      */
     private $text;
-    
+
     /**
-     * @var array tag atributes 
+     * @var array tag atributes
      */
     private $attributes = array();
-    
+
     /**
      * @var string unique identifier for this element ("id" atribute)
      */
     private $htmlId;
-    
+
     /**
      * @staticvar array A list with all ids used by the page
      */
     private static $usedIds = array();
-    
+
     /**
      * @var boolean true if the tag should be rendered without closing tag (no children)
      */
     private $singleTag = false;
-    
+
     /**
      * @var int The next child that should be retrived by Element::eachChild()
      * @see Element::eachChild()
      */
     private $position = 0;
-    
+
     /**
      * @param string $tagName The name of the element (e.g. "div" for <div>)
      * @param string $tagId The unique identifier for this element
@@ -57,7 +56,7 @@ class Element extends TObject
     public function __construct($tag = 'div', $id = '')
     {
         $this->tag = $tag;
-    
+
         $this->setId($id);
     }
 
@@ -95,26 +94,26 @@ class Element extends TObject
             $id = $newid . $element_nr;
             $element_nr ++;
         }
-        
+
         // remove old id from the list
         if (false !== ($position = array_search($this->htmlId, self::$usedIds)))
         {
             unset(self::$usedIds[$position]);
         }
-        
+
         // in with the new
         self::$usedIds[] = $id;
-        
+
         // save the id
         $this->htmlId = $id;
 
         // update the element atributes
         $this->setAttribute('id', $this->getId());
-        
-        
+
+
         return $this;
     }
-    
+
     /**
      * @return string
      */
@@ -174,7 +173,7 @@ class Element extends TObject
         $this->attributes[$attrName] = "{$attrValue}";
         return $this;
     }
-    
+
     /**
      * Set the inner text of the element. This can contain simple HTML code too
      * @param string $newText the new inner text
@@ -185,7 +184,7 @@ class Element extends TObject
         $this->text = $newText;
         return $this;
     }
-    
+
     /**
      * Get the current inner text
      * @return string
@@ -216,7 +215,7 @@ class Element extends TObject
             {
                 // the inserted position is the end of the array
                 $position = $nrChilds;
-                
+
             }
             else
             {
@@ -230,10 +229,10 @@ class Element extends TObject
             $toAdd['position'] = $position;
             $this->childs[$position] = $toAdd;
         }
-        
+
         return $this;
     }
-    
+
     /**
      * Retrives the Child information (index position, Element object and possition relative to the text - before = true/false)
      * @param string $id the element's ID
@@ -246,10 +245,10 @@ class Element extends TObject
                 return $element;
             }
         }
-        
+
         return null;
     }
-    
+
     /**
      * Retrives the Child information (index position, Element object and possition relative to the text - before = true/false) based on the element type/tag
      * @param string $tag the element's type name
@@ -262,10 +261,10 @@ class Element extends TObject
                 return $element;
             }
         }
-        
+
         return null;
     }
-    
+
     /**
      * Retrives the next Child information, based on an internal pointer. After the list child, NULL is returned and the pointer repositions on the first element
      * @param string $tag the element's type name
@@ -313,7 +312,7 @@ class Element extends TObject
         }
         return "<{$tag}>" . $htmlBefore . $this->text . $htmlAfter . "</{$this->tag}>";
     }
-    
+
     /**
      * fetch or display only the start tag of the element
      * @param boolean $echo true if you want to print the tag
@@ -335,7 +334,7 @@ class Element extends TObject
             }
             return "<{$tag} />";
         }
-        
+
         /* Echo if necessary */
         if ($echo)
         {
@@ -343,7 +342,7 @@ class Element extends TObject
         }
         return "<{$tag}>";
     }
-    
+
     /**
      * Fetch or display the element's enting tag. if this is a single-tag element, an empty string will be returned
      * @param boolean $echo true if the tag should be printed

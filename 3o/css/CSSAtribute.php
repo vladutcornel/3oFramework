@@ -1,4 +1,5 @@
 <?php
+require_once TRIO_DIR.'/whereis.php';
 /**
  * A CSSAttribute is expected to return one or more CSS-compatible attributes
  * @author Cornel Borina <cornel@scoalaweb.com>

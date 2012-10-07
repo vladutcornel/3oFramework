@@ -1,41 +1,42 @@
-<?php 
+<?php
+require_once TRIO_DIR.'/whereis.php';
 /**
  * Defines a CSS-ready color.
  */
 class CSSColor
 {
     /**
-     * @var int 
+     * @var int
      */
     private $red = 0;
     /**
-     * @var int 
+     * @var int
      */
     private $green = 0;
     /**
-     * @var int 
+     * @var int
      */
     private $blue = 0;
-    
+
     /**
-     * @var int 
+     * @var int
      */
     private $hue = 0;
     /**
-     * @var int 
+     * @var int
      */
     private $saturation;
     /**
-     * @var int 
+     * @var int
      */
     private $lightnes;
-    
-    
+
+
     /**
      * @var int transparency
      */
     private $alpha = 1;
-    
+
     /**
      * @param string The initial CSS color in valid format (#RRGGBB,#RGB,rbg[a] or hsl[a])
      */
@@ -48,28 +49,28 @@ class CSSColor
             $init = self::$standard_colors[$init];
         }
         $format_not_found = true;
-        
+
         if ("transparent" == $init){
             $this->alpha = 0;
             $format_not_found = false;
         }
-        
+
         if ($format_not_found)
         {   // long hex format #RRGGBB
             $hex = preg_match("/^#([0-9a-f]{6})$/", $init, $matches);
             if ($hex)
             {
-                
+
                 $this->red = hexdec($init[1].$init[2]);
                 $this->green = hexdec($init[3].$init[4]);
                 $this->blue = hexdec($init[5].$init[6]);
-                
+
                 $this->alpha = 1;
                 $this->update_hsl();
                 $format_not_found = false;
-            }    
+            }
         }
-        
+
         if ($format_not_found)
         {   // short hex format #RGB
             $hex = preg_match("/^#([0-9a-f]{3})$/", $init, $matches);
@@ -79,30 +80,30 @@ class CSSColor
                 $this->red = hexdec($init[1].$init[1]);
                 $this->green = hexdec($init[2].$init[2]);
                 $this->blue = hexdec($init[3].$init[3]);
-            
-                $this->alpha = 1;
-                $this->update_hsl();
-                $format_not_found = false;
-            }    
-        }
-        
-        if ($format_not_found)
-        {
-            // rgb([0..255],[0..255],[0..255])
-            $rgb = preg_match("/^rgb\((?P<red>[0-9]{1,3}),(?P<green>[0-9]{1,3}),(?P<blue>[0-9]{1,3})\)$/", $init, $matches);
-        
-            if ($rgb)
-            {
-                $this->red = intval($matches['red']);
-                $this->green = intval($matches['green']);
-                $this->blue = intval($matches['blue']); 
-                
+
                 $this->alpha = 1;
                 $this->update_hsl();
                 $format_not_found = false;
             }
         }
-        
+
+        if ($format_not_found)
+        {
+            // rgb([0..255],[0..255],[0..255])
+            $rgb = preg_match("/^rgb\((?P<red>[0-9]{1,3}),(?P<green>[0-9]{1,3}),(?P<blue>[0-9]{1,3})\)$/", $init, $matches);
+
+            if ($rgb)
+            {
+                $this->red = intval($matches['red']);
+                $this->green = intval($matches['green']);
+                $this->blue = intval($matches['blue']);
+
+                $this->alpha = 1;
+                $this->update_hsl();
+                $format_not_found = false;
+            }
+        }
+
         if ($format_not_found)
         {
             // rgba([0..255],[0..255],[0..255],[0..1])
@@ -111,18 +112,18 @@ class CSSColor
             {
                 $this->red = intval($matches['red']);
                 $this->green = intval($matches['green']);
-                $this->blue = intval($matches['blue']); 
-                
+                $this->blue = intval($matches['blue']);
+
                 $this->alpha = floatval($matches['alpha']);
                 $this->update_hsl();
                 $format_not_found = false;
             }
         }
-        
-        
-        
-        
-        
+
+
+
+
+
         if ($format_not_found)
         {
             //hsl([0..360],[1..100]%,[1..100]%)
@@ -131,38 +132,38 @@ class CSSColor
             {
                 $this->hue = intval($matches['hue']);
                 $this->saturation = intval($matches['saturation']);
-                $this->lightnes = intval($matches['light']); 
-                
+                $this->lightnes = intval($matches['light']);
+
                 $this->alpha = 1;
                 $this->update_rgb();
                 $format_not_found = false;
-            }    
+            }
         }
-        
+
         if ($format_not_found)
         {
             //hsla([0..360],[1..100]%,[1..100]%,[0..1])
             $hsla = preg_match("/hsla\((?P<hue>[0-9]{1,3}),(?P<saturation>[0-9]{1,3})%,(?P<light>[0-9]{1,3})%,(?P<alpha>[01](.[0-9]*)?)\)/", $init, $matches);
-            
+
             if ($hsla)
             {
                 $this->hue = intval($matches['hue']);
                 $this->saturation = intval($matches['saturation']);
-                $this->lightnes = intval($matches['light']); 
-                
+                $this->lightnes = intval($matches['light']);
+
                 $this->alpha = floatval($matches['alpha']);
                 $this->update_rgb();
                 $format_not_found = false;
-            }    
+            }
         }
-        
+
         // throw a exception if there is no valid color
         if ($format_not_found)
         {
             throw new NotAColor($init);
         }
     }
-    
+
     /**
      * Update Hue-Saturation-Lightnes values after the RGB changed
      */
@@ -173,13 +174,13 @@ class CSSColor
 	$H = 0;
 	$S = 0;
         $L = 0;
-        
+
 	$min = min(min($r, $g),$b);
 	$max = max(max($r, $g),$b);
 	$delta = $max - $min;
-	
+
 	$L = ($max + $min)/2;
-	
+
 	if($delta == 0)
 	{
 		$H = 0;
@@ -188,29 +189,29 @@ class CSSColor
 	else
 	{
 		$S = $delta / $max;
-		
+
 		$dR = ((($max - $r) / 6) + ($delta / 2)) / $delta;
 		$dG = ((($max - $g) / 6) + ($delta / 2)) / $delta;
 		$dB = ((($max - $b) / 6) + ($delta / 2)) / $delta;
-		
+
 		if ($r == $max)
 			$H = $dB - $dG;
 		else if($g == $max)
 			$H = (1/3) + $dR - $dB;
 		else
 			$H = (2/3) + $dG - $dR;
-		
+
 		if ($H < 0)
 			$H += 1;
 		if ($H > 1)
 			$H -= 1;
 	}
-        
+
         $this->hue = $H*360;
         $this->saturation = $S*100;
 	$this->lightnes = $L*100;
     }
-    
+
     /**
      * Update rgb values based on hsl values
      * based on http://mjijackson.com/2008/02/rgb-to-hsl-and-rgb-to-hsv-color-model-conversion-algorithms-in-javascript
@@ -219,58 +220,58 @@ class CSSColor
         $h = $this->hue / 360;
         $s = $this->saturation / 100;
         $l = $this->lightnes / 100;
-        
+
         if($s == 0){
             $r = $g = $b = $l; // achromatic
         }else{
-            
-    
+
+
             $q = $l < 0.5 ? $l * (1 + $s) : $l + $s - $l * $s;
             $p = 2 * $l - $q;
             $r = hue2rgb($p, $q, $h + 1/3);
             $g = hue2rgb($p, $q, $h);
             $b = hue2rgb($p, $q, $h - 1/3);
         }
-        
+
         $this->red =    intval($r*255);
         $this->green =  intval($g*255);
         $this->blue =   intval($b*255);
     }
-    
+
     /**
      * Return the hsl CSS function
-     * 
+     *
      */
     public function getHSL()
     {
        return "hsl({$this->hue},{$this->saturation}%,{$this->lightnes}%)";
     }
-    
+
     /**
      * Return the rgb CSS function
-     * 
+     *
      */
     public function getRGB()
     {
        return "rgb({$this->red},{$this->green},{$this->blue})";
     }
-    
+
     /**
      * Return the rgba CSS function
-     * 
+     *
      */
     public function getRGBA()
     {
        return "rgba({$this->red},{$this->green},{$this->blue},{$this->alpha})";
     }
-    
+
     /**
      * Get the simple hex (#RGB) representation of the color
      */
     public function getSimpleHex()
     {
         // SR = (R-R%16)/16
-       
+
        $simple_red = intval($this->red/16,16);
        $hex = dechex($simple_red);
        $simple_green = intval($this->green/16,16);
@@ -279,31 +280,31 @@ class CSSColor
        $hex.=dechex($simple_blue);
        return "#$hex";
     }
-    
+
     /**
      * Get the long hex (#RRGGBB) representation of the color
      */
     public function getLongHex()
     {
         // SR = (R-R%16)/16
-       
+
        $red = dechex($this->red);
        if (strlen($red) == 1){
             $red = '0'.$red;
        }
-       
+
        $green = dechex($this->green);
        if (strlen($green) == 1){
             $green = '0'.$green;
        }
-       
+
        $blue = dechex($this->blue);
        if (strlen($blue) == 1){
             $blue = '0'.$blue;
        }
        return "#{$red}{$green}{$blue}";
     }
-    
+
     /**
      * Return a IE-filter compatible color
      * @return string
@@ -311,22 +312,22 @@ class CSSColor
     public function getARGB()
     {
         // SR = (R-R%16)/16
-       
+
        $red = dechex($this->red);
        if (strlen($red) == 1){
             $red = '0'.$red;
        }
-       
+
        $green = dechex($this->green);
        if (strlen($green) == 1){
             $green = '0'.$green;
        }
-       
+
        $blue = dechex($this->blue);
        if (strlen($blue) == 1){
             $blue = '0'.$blue;
        }
-       
+
        $alpha = dechex(intval($this->alpha * 255));
        if (strlen($alpha) == 1)
        {
@@ -334,7 +335,7 @@ class CSSColor
        }
        return "#{$alpha}{$red}{$green}{$blue}";
     }
-    
+
     /**
      * Invert this color
      */
@@ -344,7 +345,7 @@ class CSSColor
         $this->blue = 255 - $this->blue;
         $this->update_hsl();
     }
-    
+
 
     // good ol` setters and getters
     /**
@@ -364,7 +365,7 @@ class CSSColor
     public function getRed(){
         return $this->red;
     }
-    
+
     /**
      * @param int $new_green_value
      */
@@ -382,7 +383,7 @@ class CSSColor
     public function getGreen(){
         return $this->green;
     }
-    
+
     /**
      * @param int $new_blue_value
      */
@@ -400,7 +401,7 @@ class CSSColor
     public function getBlue(){
         return $this->blue;
     }
-    
+
     /**
      * Set the color hue. Specify $method = "fractional" if you use a [0,1] range
      * @param int|float $new_hue_value
@@ -424,7 +425,7 @@ class CSSColor
             return $this->hue/360;
         return $this->hue;
     }
-    
+
     /**
      * Set the color saturation. Specify $method = "fractional" if you use a [0,1] range
      * or "%" for percentage value
@@ -449,7 +450,7 @@ class CSSColor
             return $this->saturation/100;
         return $this->saturation;
     }
-    
+
     /**
      * Set the color luminsance(light). Specify $method = "fractional" if you use a [0,1] rangeor "%" for percentage value
      * @param int|float $new_saturation_value
@@ -473,7 +474,7 @@ class CSSColor
             return $this->lightnes/100;
         return $this->lightnes;
     }
-    
+
     /**
      * Set the value for the alpha chanel
      * @param float $value the new value for the alpha chanel
@@ -483,33 +484,33 @@ class CSSColor
         if ('%' == $method){
             $value/=100;
         }
-        
+
         $this->alpha = $value;
     }
-    
+
     /**
      * Get the alpha chanel value
      * @param string $method input method: percent(%) or fractional. Default fractional
      * @return float
      */
-    
+
     public function getAlpha($method){
         if ('%' == $method)
         {
             return intval($this->alpha*100);
         }
-        
+
         return $this->alpha;
     }
-    
+
     /**
      * Get the best CSS representation for this color
-     * @return string 
+     * @return string
      */
     public function getCSS(){
         // the color is completly transparent
         if ($this->alpha == 0) return "transparent";
-        
+
         // the color is opaque (no transparency)
         if ($this->alpha == 1){
             if ($this->red%16 == intval($this->red/16) &&
@@ -519,19 +520,19 @@ class CSSColor
                 // the color can be represented by 3 hex digits
                 return $this->getSimpleHex();
             }
-            
+
             // the color can only acurately be reprezented by 6 hex-digits
             return $this->getLongHex();
         }
-        
+
         // the color is semi-transparent
         return $this->getRGBA();
     }
-    
+
     public function __toString(){
         return $this->getCSS();
     }
-    
+
     public static $standard_colors = array(
     'aliceblue'=>'#f0f8ff',
     'antiquewhite'=>'#faebd7',
@@ -696,4 +697,4 @@ class NotAColor extends Exception{
     public function __construct($colorname){
         parent::__construct($colorname." is not a color");
     }
-}            
+}

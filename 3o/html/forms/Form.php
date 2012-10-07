@@ -1,13 +1,6 @@
 <?php
 
-require_once realpath(__DIR__.'/../HtmlElement.php');
-
-require_once realpath(__DIR__.'/..//forms/textField.php');
-require_once realpath(__DIR__.'/..//forms/passwordField.php');
-require_once realpath(__DIR__.'/..//forms/button.php');
-require_once realpath(__DIR__.'/..//forms/textarea.php');
-require_once realpath(__DIR__.'/..//forms/hidden.php');
-
+require_once TRIO_DIR.'/whereis.php';
 
 /**
  * A HTML form element.
@@ -23,7 +16,7 @@ class Form extends HtmlElement{
         $this->setAttribute('action', $action);
         $this->setAttribute('method', 'post');
     }
-    
+
     /**
      * Sets the value for the FormElement identified by field name
      * @param string $field tag's "name" value of the field
@@ -31,21 +24,21 @@ class Form extends HtmlElement{
      */
     public function setValue($field, $newValue) {
         $found = false;
-        
+
         foreach ($this->childs as $child){
             if (! $child instanceof FormElement) continue;
-            
+
             if ($child->getAttribute("name") == $field){
                 $child->setValue($newValue);
                 $found = true;
             }//if
         }//foreach
-        
+
         if (!$found) {
             $hidden = new Hidden($field, $newValue);
             $this->addChild($hidden);
         }
-        
+
         return $this;
     }
 }

@@ -1,9 +1,10 @@
 <?php
-include_once realpath(__DIR__.'/../forms/formElement.php');
+
+require_once TRIO_DIR.'/whereis.php';
 
 /**
  * An input form field
- * 
+ *
  * @author Cornel Borina <cornel@scoalaweb.com>
  * @package 3oScript
  */
@@ -16,9 +17,9 @@ class Input extends FormElement{
         if("" == $default ){
             $this->setAttribute('value', $this->httpPost($name));
         }else {
-            $this->setAttribute('value',$default);    
+            $this->setAttribute('value',$default);
         }
-        
+
 
         $this->setSingleTag(true);
     }

@@ -1,5 +1,6 @@
 <?php
-require_once realpath(__DIR__.'/../forms/input.php');
+
+require_once TRIO_DIR.'/whereis.php';
 
 /**
  * An input text field

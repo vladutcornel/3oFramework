@@ -1,20 +1,21 @@
 <?php
-require_once __DIR__.'/TGlobal.php';
+define('TRIO_DIR', __DIR__);
+require_once TRIO_DIR.'/whereis.php';
 /**
  * The center of 3OScript redirect mechanism
  * It determines the php file that should be loaded.
- * For non-php files, it just dumpes the contents and sets the Mime type 
+ * For non-php files, it just dumpes the contents and sets the Mime type
  * accordinglly
  * @author Cornel Borina <cornel@scoalaweb.com>
  * @package 3oScript
  */
 class TOCore{
-    
+
     /**
      * @staticvar array The extra params of the array
      */
     public static $params = array();
-    
+
     /**
      * This loads the requested page from a .php file
      * @param $page string the requested URI
@@ -26,7 +27,7 @@ class TOCore{
 
 	// get the virtual directories
 	$parts = explode('/',$page);
-	
+
 	if (is_dir($page) && file_exists($page.'/index.php'))
 	{
 	    // a directory with index.php was requested
@@ -38,20 +39,20 @@ class TOCore{
 	{
 	    // load the requested file
 	    $fileinfo = pathinfo($page);
-	    
+
 	    $last = count($parts) - 1;
 	    $parts[$last] = $fileinfo['filename'];
-	    
-	    
-	    
+
+
+
 	    if ($fileinfo['extension'] != 'php'){
 		// it's not a php script
 		header("Content-Type: ". mime_content_type($page));
 		echo file_get_contents($page);
-		
+
 		die();
 	    }
-	    
+
 	    include $page;
 	}
 	elseif(file_exists($page.'.php'))
@@ -68,17 +69,17 @@ class TOCore{
 		array_unshift(self::$params,array_slice($parts,-1));
 		return self::load($parent_dir);
 	    }
-	    
+
 	    if (file_exists("index.php"))
 	    {
 		// try to load the homepage.
 		return self::load("index");
 	    }
-	    
+
 	    // we still couldn't find a file to load
 	    echo '<p>Error:file not found</p>';
 	}
-	
+
 	// return the filename, so we can figure the class to load
         return $parts[count($parts)-1];
     }
@@ -116,27 +117,27 @@ class TOCore{
 
     /**
      * The main function for the TOCore class. This is loaded by default.
-     * It loads the appropriate file and and an object of the main class 
+     * It loads the appropriate file and and an object of the main class
      * (that should have the same name as the file)
-     * 
-     * Then it tries to invoke the appropriate method for the request 
-     * (ajax, javascript, css) or the main() method that should be in all the 
+     *
+     * Then it tries to invoke the appropriate method for the request
+     * (ajax, javascript, css) or the main() method that should be in all the
      * class files ment for display
      */
     public static function main()
     {
-        
+
         // turn on output buffering so nothing is isplayed unless everything is OK
         ob_start();
-        
+
         // Try to determine the real GET params
         self::$request = parse_url($_SERVER['REQUEST_URI']);
         if(isset(self::$request['query']))
             parse_str(self::$request['query'], self::$get);
 
-        // 
+        //
         $queryArray = array();
-        
+
         $final = "";
         if(isset($_SERVER['REDIRECT_QUERY_STRING']))
         {
@@ -158,9 +159,9 @@ class TOCore{
         if (! preg_match("/^[a-z]/i", $final_class)){
             $final_class = "P{$final_class}";
         }
-            
+
         // We have the name, let's run the script...
-        
+
         if(class_exists($final_class))
         {
             $page = new $final_class();
@@ -194,7 +195,7 @@ class TOCore{
             // The class is not declared (corectly)
             die ("<p>Can't find the main class.<br>Please create a {$final} class in {$final}.php</p>");
         }
-        
+
         ob_end_flush();
     }
 }

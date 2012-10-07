@@ -1,5 +1,7 @@
 <?php
 
+require_once TRIO_DIR.'/whereis.php';
+
 /**
  * A helper class to store a valid CSS size
  *
@@ -7,15 +9,15 @@
  */
 class CSSUnit {
     /**
-     * @var int The size 
+     * @var int The size
      */
     private $size = 0;
-    
+
     /**
-     * @var string the measurement unit 
+     * @var string the measurement unit
      */
     private $unit = 'px';
-    
+
     public function __construct($unit = '') {
         if (is_numeric($unit))
         {
@@ -41,7 +43,7 @@ class CSSUnit {
                 'pc',   // pica = 12 points
                 'pica(s)?'
             ));
-        
+
         $valid = preg_match('/(?P<size>[0-9]+((.|,)[0-9]+)?)\s*(?P<unit>'.$css_units.')?/', $unit, $matches);
         //$valid = preg_match('/(?P<size>[0-9]+)/i', $unit, $matches);
         var_dump($unit, $valid, $matches);

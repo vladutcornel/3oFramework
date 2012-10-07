@@ -1,7 +1,6 @@
 <?php
 
-require_once __DIR__.'/TObject.php';
-require_once __DIR__.'/css/CSSColor.php';
+require_once TRIO_DIR.'/whereis.php';
 
 /**
  * A CSS style sheet
@@ -9,17 +8,17 @@ require_once __DIR__.'/css/CSSColor.php';
  * @package 3oScript
  */
 class Style extends TObject{
-    
+
     /**
      * @var string the CSS selector for this style
      */
     private $selector;
-    
+
     /**
      * @var array An associative array for each style property
      */
     private $properties = array();
-    
+
     /**
      * @var array all the styles that descend from this
      */
@@ -102,7 +101,7 @@ class Style extends TObject{
 
     /**
      * Getter for the selector
-     * @return string 
+     * @return string
      */
     public function getSelector(){
         return $this->selector;
@@ -126,19 +125,19 @@ class Style extends TObject{
      */
     public function setProperty($property_name, $property_value) {
         // determine setter name
-        $setter = self::getPropertyMethod($property_name); 
-        
+        $setter = self::getPropertyMethod($property_name);
+
         if (method_exists(this,$setter)){
             // use a specialised setter
             $this->$setter($property_value);
         }else {
             // use a generic setter
-            $this->properties[$property_name] = trim("$property_value");    
+            $this->properties[$property_name] = trim("$property_value");
         }
-        
+
         return $this;
     }
-    
+
     /**
      * Get the value for the specified property
      * @return string|int
@@ -148,10 +147,10 @@ class Style extends TObject{
         if (method_exists(this, $getter)){
             return $this->$getter();
         }
-        
+
         return $this->properties[$property_name];
     }
-    
+
     public static function getPropertyMethod($property_name, $prefix = "set"){//eg. margin left
         $temp = str_replace("-"," ",$property_name); // e.g. "margin left"
         $temp = ucwords($temp); // eg. "Margin Left"
@@ -186,9 +185,9 @@ class Style extends TObject{
             }
         }
     }
-    
+
     // Costumised setters and getters /////////////////////////////////////////
-    
+
     /**
      * Set all background properties in on shot
      */
@@ -196,9 +195,9 @@ class Style extends TObject{
         // split the background properties by a whitespace
         $bg_props = preg_split("/[\s,]+/", $background_properties);
         $props_array = array();
-        
+
         $size_values = 0;
-        
+
         foreach ($bg_props as $prop){
             // check if it's a color and set the color $props_array['color'] if so and continue
             try{
@@ -206,7 +205,7 @@ class Style extends TObject{
                 $props_array['color'] = $color;
                 continue;
             } catch(NotAColor $e){}
-            
+
             //todo: check all belo
             // check if it's in {top,left,bottom,right, center} and set the position
             $align = preg_match("/^(top|left|bottom|right|center)$/i",strtolower($prop));
@@ -229,8 +228,8 @@ class Style extends TObject{
                 echo $size_values++;
                 continue;
             }
-            
-            
+
+
             // TODO: check if it's a size property and set it
             $size = preg_match("/^[0-9]+(.[0-9]+)?(p[xct]|%|[cem]m|in)$/i", $prop);
             if ($size){
@@ -260,19 +259,19 @@ class Style extends TObject{
                         if (is_array($props_array['size'])){
                             $props_array['size']['height'] = $prop;
                         }
-                        
+
                 }
-                
+
                 echo $size_values ++;
                 continue;
             }
-            
+
             $size = preg_match("/^(cover|contain)$/i", $prop);
             if ($size){
                 $props_array['size'] = $prop;
                 continue;
             }
-            
+
             // check if is in {repeat-x, repeat-y, no-reapet} and set repeat property
             $repeat = preg_match("/^(repeat\-[xy]|(no\-)?repeat)$/i", $prop);
             if ($repeat)
@@ -280,7 +279,7 @@ class Style extends TObject{
                 $props_array['repeat'] = $prop;
                 continue;
             }
-            
+
             $origin = preg_match("/^(padding|border|content)\-box$/i",$prop);
             if ($origin){
                 if (!isset($props_array['origin']))
@@ -289,14 +288,14 @@ class Style extends TObject{
                     $props_array['clip'] = $prop;
                 continue;
             }
-            
+
             $attachment = preg_match("/^(fixed|scroll)$/i", $prop);
             if ($attachment){
                 $props_array['attachment'] = $prop;
                 continue;
             }
-            
-            
+
+
             // todo: check it may be a image (url, linear-gradient) and set the image
             $image = preg_match("/^url\\(['\"]?(?P<url>[^'\"]+)(['\"]?)\\)/i",$prop,$matches);
             if ($image){
@@ -305,7 +304,7 @@ class Style extends TObject{
                 $props_array['images'][] = $matches['url'];
             }
         }// foreach bg property
-        
+
         return $props_array;
     }
 }
