@@ -21,6 +21,6 @@ class UserInputException extends Exception {
      * @return string
      */
     public function getField() {
-        return $field;
+        return $this->field;
     }
 }
