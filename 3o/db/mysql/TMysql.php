@@ -112,7 +112,7 @@ class TMysql {
         }
         
         // throw an exception because the property was not found
-        throw new Exception("Unrecognized Property Name (".__CLASS__."::{$name}). Did you meen {$closest}?");
+        throw new UnexpectedValueException ("Unrecognized Property Name (".__CLASS__."::{$name}). Did you meen {$closest}?");
     }
     
     /**
@@ -427,7 +427,7 @@ $db->escape -- Format a string correctly to stop accidental mal formed queries u
             return $results[$offset];
         }
         
-        throw new Exception('Invalid Offset');
+        throw new DomainException ('Invalid Offset');
     }
     
     /**
@@ -436,7 +436,7 @@ $db->escape -- Format a string correctly to stop accidental mal formed queries u
      * @param type $offset
      * @param type $cache
      * @return type
-     * @throws Exception
+     * @throws DomainException 
      */
     public function get_col($query = '', $offset = 0, $cache = TMYSQL_CACHE_INTERVAL)
     {
@@ -462,7 +462,7 @@ $db->escape -- Format a string correctly to stop accidental mal formed queries u
         $this->get_results($query, OBJECT, TMYSQL_CACHE_INTERVAL);
         if (is_numeric($offset) && ($this->last_result->num_rows < $offset || $offset < 0))
         {
-            throw new Exception('Invalid Offset');
+            throw new DomainException ('Invalid Offset');
         }
         
         if (!is_numeric($offset))
@@ -485,7 +485,7 @@ $db->escape -- Format a string correctly to stop accidental mal formed queries u
             // throw exception if nothing was found
             if (! $field_found)
             {
-                throw new Exception('Invalid offset');
+                throw new DomainException ('Invalid offset');
             }
         }
         
@@ -514,7 +514,7 @@ $db->escape -- Format a string correctly to stop accidental mal formed queries u
      * @param type $column
      * @param type $cache
      * @return type
-     * @throws Exception
+     * @throws DomainException 
      */
     public function get_var(
             $query = '', 
@@ -550,12 +550,12 @@ $db->escape -- Format a string correctly to stop accidental mal formed queries u
         $results = $this->get_results($query, OBJECT, $cache);
         if (false == $this->last_result->data_seek($row))
         {
-            throw new Exception('Invalid row offset ('.$row.')');
+            throw new DomainException ('Invalid row offset ('.$row.')');
         }
         
         if (false == $this->last_result->field_seek($column))
         {
-            throw new Exception('Invalid column offset');
+            throw new DomainException ('Invalid column offset');
         }
         
         $row = $this->last_result->fetch_row();
@@ -628,32 +628,6 @@ $db->escape -- Format a string correctly to stop accidental mal formed queries u
     {
         return $this->mysqli->real_escape_string(stripslashes($string));
     }
-}
-
-if (!function_exists('string2date'))
-{
-    /**
-     * Creates a DateTime object form a string, a DateInterval or a ISO8601 interval (P<date>T<time>, used by DateInterval Constructor)
-     * @param mixed $string
-     * @return \DateTime
-     * @throws Exception when the string can not be evaluated eather way.
-     */
-    function string2date($string)
-    {
-        if ($string instanceof DateTime) return $string;
-        if ($string instanceof DateInterval) return date_create ()->add($string);
-        try
-        {
-            // for relative format
-            $time = new DateTime($string);
-            return $time;
-        }  catch (Exception $e){}
-        // for P...T... format (ISO 8601)
-        $interval = new DateInterval($string);
-        return date_create()->add($interval);
-    }
-    
-    
 }
 
 if (!function_exists('readJSONCache')) {
