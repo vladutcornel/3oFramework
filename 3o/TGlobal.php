@@ -94,6 +94,88 @@ if(!class_exists('TGlobal'))
                if (! isset($_COOKIE[$param])) return $default;
                return $_COOKIE[$param];
         }
+        
+        /**
+         * Set a cookie value. The difference between this and PHP's setcookie()
+         * is that you can throw in almost any time-related value as the expiration time.
+         * The 4th parameter should be an associative array to set the other
+         * setcookie() options and are the same as the defaults from PHP, except 
+         * that the path is set to '/'
+         * 
+         * @param string $param
+         * @param mixed $value
+         * @param mixed $expire expiration time
+         * @param array $extra extra parameters for setcookie function
+         */
+        public static function setCookie($param, $value = 1, $expire = 0, $extra = array())
+        {
+            // try to find the perfect expiration timestamp
+            $expire_timestamp = 0;
+            if (!empty($expire))
+            {
+                try{
+                    if ('session' == $expire)
+                    {
+                        // the user may only want to set the extra params
+                        $expire_timestamp = 0;
+                        throw new Exception('found');
+                    }
+                    
+                    if (is_numeric($expire))
+                    {
+                        $now = time();
+                        if ($expire < $now){
+                            // asume the user wants a relative timestamp
+                            $expire_timestamp = time() + (int)$expire;
+                            throw new Exception('found');
+                        } else {
+                            // this is old-school
+                            $expire_timestamp = (int)$expire;
+                            throw new Exception('found');
+                        }
+                    }
+                    
+                    // this will throw an exception (that probably doesn't have 
+                    // 'found' as a message) if the expire can't be evaluated as a time
+                    $date = string2date($expire);
+                    
+                    $expire_timestamp = $date->getTimestamp();
+                    
+                } catch (Exception $e)
+                {
+                    if ('found' != $e->getMessage())
+                    {
+                        $expire_timestamp = 0;
+                    }
+                }
+            }
+            
+            
+            $extra = (array) self::populate($extra, array(
+                'path'=>'/',
+                'domain'=>  null,
+                'secure' => false, 
+                'httponly' => false 
+            ));
+            $success = setcookie($param, $value, $expire_timestamp, $extra['path'], $extra['domain'], $extra['secure'], $extra['httponly']);
+            // in case you disperately need the cookie value during the same
+            // script - you should not rely on that...
+            $_COOKIE[$param] = $value;
+        }
+        
+        public static function unsetCookie($param, $extra = array())
+        {
+            // if, by any chance, get an object or something else...
+            $extra = (array) $extra;
+            self::populate($extra, array(
+                'path'=>'/',
+                'domain'=>  TGlobal::server('HTTP_HOST'),
+                'secure' => false, 
+                'httponly' => false 
+            ));
+            // set the cookie to 25 hours ago 
+            setcookie($param, '', time() - 90000, $extra['path'], $extra['domain'], $extra['secure'], $extra['httponly']);
+        }
 
         /**
          * Get session vars ($_SESSION)
@@ -225,7 +307,73 @@ if(!class_exists('TGlobal'))
 
             return $toreturn;
         }
+        
+        /**
+         * Populate an array or an object with the specified default values if those are not set already
+         * @param object|array $original Theoriginal object/array
+         * @param object|array $defaults An object/array containing the default values
+         * @return object|array The original array or object with the default values set
+         * @throws UnexpectedValueException
+         */
+        public static function populate($original, $defaults)
+        {
+            $using_array = true;
+            if (is_object($original))
+            {
+                $using_array = false;
+            } elseif (!is_array($original))
+            {
+                // I don't know what to do with this...
+                throw new UnexpectedValueException('the first parameter from TGlobal::populate should be eather an array or an object.'.  gettype($original).' was given');
+            }
+            
+            if (!is_array($defaults) && !is_object($defaults))
+            {
+                // foreach will complain with this
+                throw new UnexpectedValueException('the second parameter from TGlobal::populate should be eather an array or an object.'.  gettype($original).' was given');
+            }
+            
+            foreach($defaults as $key=>$value)
+            {
+                if ($using_array && !isset($original[$key]))
+                {
+                    $original[$key] = $value;
+                } elseif (!isset ($original->$key)){
+                    $original->$key = $value;
+                }
+            }
+            
+            return $original;
+        }
 
     }
+    
 }
 TGlobal::init();
+
+if (!function_exists('string2date'))
+{
+    /**
+     * Creates a DateTime object form a string, a DateInterval or a ISO8601 interval (P<date>T<time>, used by DateInterval Constructor)
+     * @param mixed $string
+     * @return \DateTime
+     * @throws DomainException  when the string can not be evaluated eather way.
+     * @todo This may be better in a separate class
+     */
+    function string2date($string)
+    {
+        if ($string instanceof DateTime) return $string;
+        if ($string instanceof DateInterval) return date_create ()->add($string);
+        try
+        {
+            // for relative format
+            $time = new DateTime($string);
+            return $time;
+        }  catch (Exception $e){}
+        // for P...T... format (ISO 8601)
+        $interval = new DateInterval($string);
+        return date_create()->add($interval);
+    }
+    
+    
+}
