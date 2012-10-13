@@ -3,8 +3,8 @@ require_once TRIO_DIR.'/whereis.php';
 /**
  * Wrapper for the PHP's global vars
  * If any of the requested params are not set, the methods will return an empty
- * string, or, for the Get, Post and cookie, the programmer can specify the
- * default return value.
+ * string, or, for the Get, Post, Cookie and Session, the programmer can specify 
+ * the default return value.
  *
  * For the GET parameters, the real browser sent parameters are used, since PHP
  * may get confused if a redirect script is used (eg. using mod_rewrite in Apache)

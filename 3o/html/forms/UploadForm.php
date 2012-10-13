@@ -5,7 +5,8 @@ require_once TRIO_DIR.'/whereis.php';
 /**
  * An Form ready for uploading files
  * @author Cornel Borina <cornel@scoalaweb.com>
- * @package 3oScript
+ * @package 3oLibrary
+ * @subpackage HTML
  */
 class UploadForm extends Form{
 

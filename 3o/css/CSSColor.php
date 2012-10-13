@@ -2,6 +2,9 @@
 require_once TRIO_DIR.'/whereis.php';
 /**
  * Defines a CSS-ready color.
+ * @package 3oLibrary
+ * @subpackage CSS
+ * @todo add Color manipulation methods (see LESS)
  */
 class CSSColor
 {

@@ -5,7 +5,9 @@ require_once TRIO_DIR.'/whereis.php';
 /**
  * A generic HTML Element
  * @author Cornel Borina <cornel@scoalaweb.com>
- * @package 3oScript
+ * @package 3oLibrary
+ * @subpackage HTML
+ * @todo Subclasses should define lists of accepted sub-elements
  */
 class HtmlElement extends Element{
 

@@ -4,8 +4,9 @@ require_once TRIO_DIR.'/whereis.php';
 
 /**
  * A helper class to store a valid CSS size
- *
- * @author cornel
+ * @author Cornel Borina <cornel@scoalaweb.com>
+ * @package 3oLibrary
+ * @subpackage CSS
  */
 class CSSUnit {
     /**

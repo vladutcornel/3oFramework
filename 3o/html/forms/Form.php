@@ -7,7 +7,8 @@ require_once TRIO_DIR.'/whereis.php';
  * It can set the value of a inner element. If the element does not exist,
  * a hidden element with that name and value is created
  * @author Cornel Borina <cornel@scoalaweb.com>
- * @package 3oScript
+ * @package 3oLibrary
+ * @subpackage HTML
  */
 class Form extends HtmlElement{
     private $hidden = array();

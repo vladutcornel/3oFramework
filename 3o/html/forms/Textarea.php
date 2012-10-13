@@ -5,7 +5,8 @@ require_once TRIO_DIR.'/whereis.php';
 /**
  * A multi-line text field (aka. textarea)
  * @author Cornel Borina <cornel@scoalaweb.com>
- * @package 3oScript
+ * @package 3oLibrary
+ * @subpackage HTML
  */
 class Textarea extends FormElement{
     public function __construct($name, $default = '', $id = ''){

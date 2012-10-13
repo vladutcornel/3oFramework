@@ -3,10 +3,12 @@
 require_once TRIO_DIR.'/whereis.php';
 /**
  * Define a CSS gradient. This can be linear or radial.
+ * This is not yet complete
  * @author Cornel Borina <cornel@scoalaweb.com>
- * @package 3oScript
+ * @package 3oLibrary
+ * @subpackage CSS
  */
-class CSSGradient{
+class CSSGradient implements CSSAtribute{
     /**
      * @var array The stop points of the gradient)
      */
@@ -28,7 +30,6 @@ class CSSGradient{
     private $type = 'linear';
 
     public function __construct($init) {
-        //background: radial-gradient(ellipse at center, #1e5799 0%,#2989d8 50%,#207cca 70%,#7db9e8 100%); /* W3C */
         $valid = preg_match("/(?P<type>linear|radial)-gradient\((?P<points>[^\)]{0,},?)/i",$init,$found);
 	if ($valid) {
 	    $points = explode(',',$found['points']);
@@ -111,6 +112,9 @@ class CSSGradient{
 
     } // function __construct
 
+    /**
+     * Update gradient stop-point positions
+     */
     private function update_positions(){
         // update the point positions
         $start_point = 0;
@@ -129,12 +133,13 @@ class CSSGradient{
                 }
             }
 
-            // update the positions for all the
+            // update the positions for all the points between start point end endpoint
+            //TODO:
         }while($continue);
 
     }// update_positions()
 
-    public function toCSS($echo = true){
-
+    public function cssArray() {
+        
     }
 }

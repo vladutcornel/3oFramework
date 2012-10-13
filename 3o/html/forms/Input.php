@@ -6,7 +6,8 @@ require_once TRIO_DIR.'/whereis.php';
  * An input form field
  *
  * @author Cornel Borina <cornel@scoalaweb.com>
- * @package 3oScript
+ * @package 3oLibrary
+ * @subpackage HTML
  */
 class Input extends FormElement{
     public function __construct($type, $name, $default = '', $id = ''){

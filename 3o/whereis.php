@@ -2,7 +2,7 @@
 <?php
 /**
  * Helper file to locate all the framework classes - Auto generated
- * @package 3oScript
+ * @package 3oLibrary
  * @author Cornel Borina <cornel@scoalaweb.com>
  */
 
@@ -64,16 +64,19 @@ function trio_autoload($class_name){
 }
 
 /*
- * Register autoload function and set it to prepand (3rd param) so other autoload functions can be declared
+ * Register autoload function and set it to prepand (3rd param) so other 
+ * autoload functions can be declared
  */
 spl_autoload_register ('trio_autoload', true, true);
 
 /**
- * Tell the script where to look for the invoked class
+ * Tell the script where to look for the invoked class.
  * You can provide a parameters list with the odd index (1st param, 3rd...) 
- * being the class names andd the even parameters being the file path.
+ * being the class names and the even parameters being the file path.
  * Or you can directly provide an associative array with the keys being the 
- * class names and the alues the path
+ * class names and the values the path.
+ * You can use this as an substitute for "include ClassFile.php" since this
+ * only loads the file only when needed
  * @param array $whereis array(class_name=>file_path)
  */
 function trio_whereis()

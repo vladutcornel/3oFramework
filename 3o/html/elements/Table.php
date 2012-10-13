@@ -6,7 +6,8 @@ require_once TRIO_DIR.'/whereis.php';
  * A HTML table.
  * It includes simple manipulation of the Table cells and 3 sections (thead, tbody, tfoot)
  * @author Cornel Borina <cornel@scoalaweb.com>
- * @package 3oScript
+ * @package 3oLibrary
+ * @subpackage HTML
  */
 class Table extends HtmlElement {
     const HEAD = "head";

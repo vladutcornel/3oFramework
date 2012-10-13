@@ -1,10 +1,11 @@
 <?php
 require_once TRIO_DIR.'/whereis.php';
 /**
- * The basic library. implements the methods that should be loaded by any other classes
+ * The basic library. implements the methods that should be loaded by any other 
+ * classes
  * Pus some data that should be available anywhere
  * @author Cornel Borina <cornel@scoalaweb.com>
- * @package 3oScript
+ * @package 3oLibrary
  */
 class TObject{
     /**
@@ -17,7 +18,8 @@ class TObject{
     }
 
     /**
-     * Convert the current element to a HTML code. This should be allways overridden
+     * Convert the current element to a HTML code. This should be allways 
+     * overridden
      * @return string The HTML representation of the current object
      */
     public function toHtml(){
@@ -63,16 +65,19 @@ class TObject{
             return $this->getVar(strtolower($matches['varname']));
         }
 
+        // test a boolean getter
         $is_boolean_getter = preg_match("/^is(?P<varname>[a-z_]+)$/i",$function, $matches);
         if ($is_boolean_getter){
             return $this->getVar(strtolower($matches['varname']))?true:false;
         }
 
+        // test a setter
         $is_setter = preg_match("/^set(?P<varname>[a-z_]+)$/i",$function, $matches);
         if ($is_setter){
             return $this->setVar(strtolower($matches['varname']), $args[0]);
         }
 
+        // Nothing worked. May be a misspell...
         throw new BadMethodCallException;
     }
 
@@ -134,6 +139,7 @@ class TObject{
         if (!isset($this->$name))
         {
             $this->$name = $value;
+            return;// so we won't throw the exception
         }
 
         throw new LogicException;

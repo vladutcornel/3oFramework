@@ -5,7 +5,10 @@ require_once TRIO_DIR.'/whereis.php';
 /**
  * A CSS style sheet
  * @author Cornel Borina <cornel@scoalaweb.com>
- * @package 3oScript
+ * @package 3oLibrary
+ * @subpackage CSS
+ * @todo Add support for & subclasses (like LESS)
+ * @todo ADD support for CSSAtribute interface
  */
 class Style extends TObject{
 

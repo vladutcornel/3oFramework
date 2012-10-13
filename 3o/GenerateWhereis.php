@@ -1,7 +1,7 @@
 <?php
 /**
  * Generate Whereis file - for 3oScript only
- *
+ * FOR DEVELOPMENT OF 3oFramework ONLY
  * @author cornel
  */
 class GenerateWhereis {

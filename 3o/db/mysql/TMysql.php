@@ -2,8 +2,9 @@
 /**
  * Helper class for MySQL 
  *
- * @author cornel
- * @package 3oScripts
+ * @author Cornel Borina <cornel@scoalaweb.com>
+ * @package 3oLibrary
+ * @subpackage Database
  */
 
 // ezSql compatibility constants

@@ -5,7 +5,8 @@ require_once TRIO_DIR.'/whereis.php';
 /**
  * An element designed to be included in a form
  * @author Cornel Borina <cornel@scoalaweb.com>
- * @package 3oScript
+ * @package 3oLibrary
+ * @subpackage HTML
  */
 class FormElement extends HtmlElement{
     private $label;//Element
