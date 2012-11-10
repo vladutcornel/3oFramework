@@ -60,6 +60,49 @@ if(!class_exists('TGlobal'))
                if(!isset(self::$get[$param])) return $default;
                return self::$get[$param];
         }
+        
+        /**
+         * Append new GET parameters to the requested query
+         * @param string|array $param
+         * @param mixed $value
+         * @return string The new get query (e.g. param1=value&param2=other_value)
+         * @throws BadMethodCallException - for development, if the second parameter is missing
+         */
+        public static function buildQuery($param, $value = NULL)
+        {
+            // get a new copy of the GET array
+            $get = self::$get;
+            
+            // behaviour 1: if it is given only one array parameter, use that to update the
+            if(is_array($param))
+            {
+                return http_build_query(array_merge($get,$param));
+            }
+            if (is_object($param))
+            {
+                // treat the param as an array
+                return http_build_query(array_merge($get,(array)$param));
+            }
+            
+            if (is_null($value))
+            {
+                throw new BadMethodCallException('TGlobal::buildQuery should be called with eather an array, an object or two values');
+            }
+            
+            // behaviour 2: if we get two parameters...
+            $get[$param] = $value;
+            return http_build_query($get);
+        }
+        
+        /**
+         * Retrive the real query
+         * @return string
+         */
+        public static function getQuery(){
+            if(isset(self::$request['query']))
+                return self::$request['query'] ;
+            return '';
+        }
 
         /**
          * GET parameters recived by PHP. Most times, it's the same as TGlobal::get()
@@ -187,8 +230,17 @@ if(!class_exists('TGlobal'))
             // start the session if it is not started
             if (session_id() === "") session_start ();
 
-            if (!isset($_SESSION[$param])) return $default;
-            else return $_SESSION[$param];
+            if (!isset($_SESSION[$param])) {
+                
+                return $default;
+            }
+            else {
+                if (is_array($default) || is_object($default))
+                {
+                    $_SESSION[$param] = TGlobal::populate($_SESSION[$param], $default);
+                }
+                return $_SESSION[$param];
+            }
         }
 
         /**
@@ -338,7 +390,7 @@ if(!class_exists('TGlobal'))
                 if ($using_array && !isset($original[$key]))
                 {
                     $original[$key] = $value;
-                } elseif (!isset ($original->$key)){
+                } elseif (!$using_array && !isset ($original->$key)){
                     $original->$key = $value;
                 }
             }
