@@ -5,10 +5,9 @@ require_once TRIO_DIR.'/whereis.php';
 /**
  * A page anchor
  * @author Cornel Borina <cornel@scoalaweb.com>
- * @package 3oLibrary
- * @subpackage HTML
+ * @package 3oScript
  */
-class Link extends HtmlElement{
+class Link extends HtmlInline{
 
     public function __construct($destination, $content = NULL, $id = ''){
         parent::__construct('a',$id);

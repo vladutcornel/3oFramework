@@ -12,10 +12,11 @@ require_once TRIO_DIR.'/whereis.php';
 class Hidden extends Input{
     public function __construct($name, $default='', $id=''){
         parent::__construct('hidden', $name, $default, $id);
+        $this->setFixed(TRUE);
     }
 
     public function toHtml($echo = TRUE){
-        return Element::toHtml($echo);
+        return HtmlElement::toHtml($echo);
     }
 
     public function toCSS($echo = null){

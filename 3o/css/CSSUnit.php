@@ -9,6 +9,13 @@ require_once TRIO_DIR.'/whereis.php';
  * @subpackage CSS
  */
 class CSSUnit {
+    // unit groups
+    const PERCENT = 0;
+    const EM = 1;
+    const EX = 2;
+    const PIXEL = 4; // Pixel based 
+    const METRIC = 5;// includes inches because they can be converted
+    
     /**
      * @var int The size
      */
@@ -18,6 +25,18 @@ class CSSUnit {
      * @var string the measurement unit
      */
     private $unit = 'px';
+    
+    private static $unit_groups = array(
+        'px'=> CSSUnit::PIXEL,
+        '%'=> CSSUnit::PERCENT,
+        'em'=> CSSUnit::EM,
+        'ex'=> CSSUnit::EX,
+        'cm'=> CSSUnit::METRIC,
+        'mm'=> CSSUnit::METRIC,
+        'in'=> CSSUnit::METRIC,
+        'pt'=> CSSUnit::METRIC,
+        'pc'=> CSSUnit::METRIC
+    );
 
     public function __construct($unit = '') {
         if (is_numeric($unit))
@@ -54,7 +73,9 @@ class CSSUnit {
             if (isset($matches['unit']))
             {
                 switch ($matches['unit']) {
-                    case '%': $this->unit = '%'; break;
+                    case '%': 
+                        $this->unit = '%'; 
+                        break;
                     case 'px':
                     case 'pixel':
                     case 'pixels':
@@ -93,6 +114,46 @@ class CSSUnit {
             }
         }
     }
+    
+    /**
+     * Get the unit group for this unit
+     */
+    public function getUnitGroup()
+    {
+        return self::$unit_groups[$this->unit];
+    }
+    
+    /**
+     * Retrve the size of this unit
+     * @return float
+     */
+    public function getSize()
+    {
+        return $this->size;
+    }
+    
+    /**
+     * Get the size in Centimeters (if the unit is metric)
+     * @return float
+     */
+    public function getCentimeters()
+    {
+        switch ($this->unit)
+        {
+            case 'cm':
+                return $this->size;
+            case 'mm':
+                return $this->size * 10;
+            case 'in':
+                return $this->size / 2.54;
+        }
+    }
+    
+    /**
+     * return a CSS-compatible string
+     * @return string
+     */
+    public function __toString() {
+        return $this->size.$this->unit;
+    }
 }
-
-?>

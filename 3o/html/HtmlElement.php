@@ -5,9 +5,7 @@ require_once TRIO_DIR.'/whereis.php';
 /**
  * A generic HTML Element
  * @author Cornel Borina <cornel@scoalaweb.com>
- * @package 3oLibrary
- * @subpackage HTML
- * @todo Subclasses should define lists of accepted sub-elements
+ * @package 3oScript
  */
 class HtmlElement extends Element{
 
@@ -34,8 +32,43 @@ class HtmlElement extends Element{
         }else{
             $this->setSingletag(false);
         }
-
+        
         $this->style = new Style("#".$this->getId());
+    }
+    
+    public function setId($id) {
+        // generate attributes based on the parameter
+        $found = preg_match_all('/(?P<type>#|\.)(?P<name>[a-z0-9_\-]+)/i', $id, $matches);
+        if ($found)
+        {
+            // find the initial part of the string (may be the id)
+            $found = preg_match('/^.+[#.]/', $id, $start_matches);
+            if ($found)
+            {
+                $newid = $start_matches[0];
+            } else {
+                $newid = '';
+            }
+            
+            foreach ($matches['type'] as $i=>$type)
+            {
+                switch ($type)
+                {
+                    case '#':
+                        $newid = $matches['name'][$i];
+                        break;
+                    case '.':
+                        $this->addClass($matches['name'][$i]);
+                        break;
+                }
+            }
+        } else {
+            $newid = $id;
+        }
+        if ($this->style)
+            $this->style->setSelector('#'.$newid);
+        return parent::setId($newid);
+        
     }
 
     /**
@@ -43,7 +76,10 @@ class HtmlElement extends Element{
      * @return HtmlElement $this
      */
     public function addClass($class_name){
-        $this->classes["$class_name"] = true;
+        $args = func_get_args();
+        foreach ($args as $class_name){
+            $this->classes["$class_name"] = true;
+        }
         $this->updateClasses();
         return $this;
     }
@@ -82,7 +118,18 @@ class HtmlElement extends Element{
      * @see Element::toCode
      */
     public function toHtml($echo = true){
-        return $this->toCode($echo);
+        return parent::toCode($echo);
+    }
+    
+    /**
+     * Because most of the HTMLElements overwrite the toHtml method,
+     * this will make Element::toCode to do the right thing for the children 
+     * @param boolean $echo
+     * @return string
+     */
+    public function toCode($echo = true)
+    {
+        return $this->toHtml($echo);
     }
 
     /**
@@ -91,7 +138,7 @@ class HtmlElement extends Element{
      */
     public function toCSS($echo = TRUE){
         $css = $this->getStyle()->get(true);
-        foreach(self::$childs as $child){
+        foreach($this->childs as $child){
             $css.= $child['element']->toCSS(false);
         }
 

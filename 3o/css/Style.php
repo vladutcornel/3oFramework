@@ -130,7 +130,7 @@ class Style extends TObject{
         // determine setter name
         $setter = self::getPropertyMethod($property_name);
 
-        if (method_exists(this,$setter)){
+        if (method_exists($this,$setter)){
             // use a specialised setter
             $this->$setter($property_value);
         }else {
@@ -194,120 +194,120 @@ class Style extends TObject{
     /**
      * Set all background properties in on shot
      */
-    public function setBackground($background_properties) {
-        // split the background properties by a whitespace
-        $bg_props = preg_split("/[\s,]+/", $background_properties);
-        $props_array = array();
-
-        $size_values = 0;
-
-        foreach ($bg_props as $prop){
-            // check if it's a color and set the color $props_array['color'] if so and continue
-            try{
-                $color = new CSSColor($prop);
-                $props_array['color'] = $color;
-                continue;
-            } catch(NotAColor $e){}
-
-            //todo: check all belo
-            // check if it's in {top,left,bottom,right, center} and set the position
-            $align = preg_match("/^(top|left|bottom|right|center)$/i",strtolower($prop));
-            if ($align){
-                if (!isset($props_array['position'])){
-                    $props_array['position'] = array(
-                        'vertical'=>'center',
-                        'horizontal'=>'center'
-                    );
-                }
-                switch ($prop){
-                    case "top":
-                    case "bottom":
-                        $props_array['position']['vertical'] = $prop;
-                        break;
-                    case "left":
-                    case "right":
-                        $props_array['position']['horizontal'] = $prop;
-                }
-                echo $size_values++;
-                continue;
-            }
-
-
-            // TODO: check if it's a size property and set it
-            $size = preg_match("/^[0-9]+(.[0-9]+)?(p[xct]|%|[cem]m|in)$/i", $prop);
-            if ($size){
-                // check if position wa set
-                switch($size_values)
-                {
-                    case 0:
-                        $props_array['position'] = array(
-                            'vertical'=>'center',
-                            'horizontal'=>$prop
-                        );
-                        break;
-                    case 1:
-                        if ("center" == $props_array['position']['vertical'])
-                            $props_array['position']['vertical'] = $prop;
-                        else
-                            $props_array['position']['horizontal'] = $prop;
-                        break;
-                    case 2:
-                        if (!isset($props_array['size']))
-                            $props_array['size'] = array(
-                                'height'=> 'auto',
-                                'width' => $prop
-                            );
-                        break;
-                    case 3:
-                        if (is_array($props_array['size'])){
-                            $props_array['size']['height'] = $prop;
-                        }
-
-                }
-
-                echo $size_values ++;
-                continue;
-            }
-
-            $size = preg_match("/^(cover|contain)$/i", $prop);
-            if ($size){
-                $props_array['size'] = $prop;
-                continue;
-            }
-
-            // check if is in {repeat-x, repeat-y, no-reapet} and set repeat property
-            $repeat = preg_match("/^(repeat\-[xy]|(no\-)?repeat)$/i", $prop);
-            if ($repeat)
-            {
-                $props_array['repeat'] = $prop;
-                continue;
-            }
-
-            $origin = preg_match("/^(padding|border|content)\-box$/i",$prop);
-            if ($origin){
-                if (!isset($props_array['origin']))
-                    $props_array['origin'] = $prop;
-                else
-                    $props_array['clip'] = $prop;
-                continue;
-            }
-
-            $attachment = preg_match("/^(fixed|scroll)$/i", $prop);
-            if ($attachment){
-                $props_array['attachment'] = $prop;
-                continue;
-            }
-
-
-            // todo: check it may be a image (url, linear-gradient) and set the image
-            $image = preg_match("/^url\\(['\"]?(?P<url>[^'\"]+)(['\"]?)\\)/i",$prop,$matches);
-            if ($image){
-                if (!isset($props_array['images']))
-                    $props_array['images'] = array();
-                $props_array['images'][] = $matches['url'];
-            }
-        }// foreach bg property
-
-        return $props_array;
-    }
+//    public function setBackground($background_properties) {
+//        // split the background properties by a whitespace
+//        $bg_props = preg_split("/[\s,]+/", $background_properties);
+//        $props_array = array();
+//
+//        $size_values = 0;
+//
+//        foreach ($bg_props as $prop){
+//            // check if it's a color and set the color $props_array['color'] if so and continue
+//            try{
+//                $color = new CSSColor($prop);
+//                $props_array['color'] = $color;
+//                continue;
+//            } catch(NotAColor $e){}
+//
+//            //todo: check all belo
+//            // check if it's in {top,left,bottom,right, center} and set the position
+//            $align = preg_match("/^(top|left|bottom|right|center)$/i",strtolower($prop));
+//            if ($align){
+//                if (!isset($props_array['position'])){
+//                    $props_array['position'] = array(
+//                        'vertical'=>'center',
+//                        'horizontal'=>'center'
+//                    );
+//                }
+//                switch ($prop){
+//                    case "top":
+//                    case "bottom":
+//                        $props_array['position']['vertical'] = $prop;
+//                        break;
+//                    case "left":
+//                    case "right":
+//                        $props_array['position']['horizontal'] = $prop;
+//                }
+//                echo $size_values++;
+//                continue;
+//            }
+//
+//
+//            // TODO: check if it's a size property and set it
+//            $size = preg_match("/^[0-9]+(.[0-9]+)?(p[xct]|%|[cem]m|in)$/i", $prop);
+//            if ($size){
+//                // check if position wa set
+//                switch($size_values)
+//                {
+//                    case 0:
+//                        $props_array['position'] = array(
+//                            'vertical'=>'center',
+//                            'horizontal'=>$prop
+//                        );
+//                        break;
+//                    case 1:
+//                        if ("center" == $props_array['position']['vertical'])
+//                            $props_array['position']['vertical'] = $prop;
+//                        else
+//                            $props_array['position']['horizontal'] = $prop;
+//                        break;
+//                    case 2:
+//                        if (!isset($props_array['size']))
+//                            $props_array['size'] = array(
+//                                'height'=> 'auto',
+//                                'width' => $prop
+//                            );
+//                        break;
+//                    case 3:
+//                        if (is_array($props_array['size'])){
+//                            $props_array['size']['height'] = $prop;
+//                        }
+//
+//                }
+//
+//                echo $size_values ++;
+//                continue;
+//            }
+//
+//            $size = preg_match("/^(cover|contain)$/i", $prop);
+//            if ($size){
+//                $props_array['size'] = $prop;
+//                continue;
+//            }
+//
+//            // check if is in {repeat-x, repeat-y, no-reapet} and set repeat property
+//            $repeat = preg_match("/^(repeat\-[xy]|(no\-)?repeat)$/i", $prop);
+//            if ($repeat)
+//            {
+//                $props_array['repeat'] = $prop;
+//                continue;
+//            }
+//
+//            $origin = preg_match("/^(padding|border|content)\-box$/i",$prop);
+//            if ($origin){
+//                if (!isset($props_array['origin']))
+//                    $props_array['origin'] = $prop;
+//                else
+//                    $props_array['clip'] = $prop;
+//                continue;
+//            }
+//
+//            $attachment = preg_match("/^(fixed|scroll)$/i", $prop);
+//            if ($attachment){
+//                $props_array['attachment'] = $prop;
+//                continue;
+//            }
+//
+//
+//            // todo: check it may be a image (url, linear-gradient) and set the image
+//            $image = preg_match("/^url\\(['\"]?(?P<url>[^'\"]+)(['\"]?)\\)/i",$prop,$matches);
+//            if ($image){
+//                if (!isset($props_array['images']))
+//                    $props_array['images'] = array();
+//                $props_array['images'][] = $matches['url'];
+//            }
+//        }// foreach bg property
+//
+//        return $props_array;
+//    }
 }

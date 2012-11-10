@@ -4,8 +4,7 @@ require_once TRIO_DIR.'/whereis.php';
 /**
  * A generic SGML (XML or HTML) element
  * @author Cornel Borina <cornel@scoalaweb.com>
- * @package 3oLibrary
- * @subpackage HTML
+ * @package 3oScript
  */
 class Element extends TObject
 {
@@ -87,6 +86,12 @@ class Element extends TObject
     */
     public function setId($newid)
     {
+        // if there is no ID, create one from the tag
+        if ('' == trim($newid)) $newid = $this->getTag ();
+        
+        // if the tag was not set, generate one random ID
+        if ('' == trim($newid)) $newid = md5(time());
+        
         // make sore it's a unique id
         $element_nr = 1;
         $id = $newid;
@@ -155,6 +160,7 @@ class Element extends TObject
      */
     public function getAttribute($attrName)
     {
+        if (!isset($this->attributes[$attrName])) return '';
         return $this->attributes[$attrName];
     }
 
@@ -173,6 +179,30 @@ class Element extends TObject
         }
         $this->attributes[$attrName] = "{$attrValue}";
         return $this;
+    }
+    
+    /**
+     * Unset a node attribute. If there is no attribute, nothing is done
+     * @param string $attrName
+     * @return Element $this
+     */
+    public function deleteAttribute($attrName)
+    {
+        if (isset($this->attributes[$attrName]))
+        {
+            unset($this->attributes[$attrName]);
+        }
+        return $this;
+    }
+    
+    /**
+     * Alias of Element::deleteAttribute
+     * @param string $attrName
+     * @return Element $this
+     */
+    public function removeAttribute($attrName)
+    {
+        return $this->deleteAttribute($attrName);
     }
 
     /**
@@ -233,6 +263,23 @@ class Element extends TObject
 
         return $this;
     }
+    
+    /**
+     * Appends this element to the specified parent
+     * @param Element $parent
+     * @param boolean $before
+     * @param int $position
+     */
+    public function addTo($parent, $before = true, $position = -1)
+    {
+        if ($parent instanceof Element)
+        {
+            $parent->addChild($this, $before, $position);
+            return $this;
+        }
+        
+        throw new BadMethodCallException('The parent of an element must also be an element');
+    }
 
     /**
      * Retrives the Child information (index position, Element object and possition relative to the text - before = true/false)
@@ -272,12 +319,30 @@ class Element extends TObject
      * @return string|null An associative array( 'position'=>int, 'before'=>bool, 'element'=>Element ) or NULL if there is no child
      */
     public function eachChild(){
+        if ($this->isSingletag() || count($this->childs) < 1)
+            return null;
         if ($this->position == count ($this->childs) ){
             $this->position = 0;
             return NULL;
         }
         return $this->childs[ $this->position++ ];
     }
+    
+    public function getChildren()
+    {
+        $children = array();
+        
+        if ($this->isSingletag() || count($this->childs) < 1)
+            return $children;
+        
+        while(($child = $this->eachChild()) != NULL)
+        {
+            $children[]= $child['element'];
+        }
+        
+        return $children;
+    }
+    
 
     /**
      * Display or fetch the Element's code
@@ -288,6 +353,11 @@ class Element extends TObject
     {
         /*Register start-tag attributes*/
         $tag = $this->startTag(false);
+        if ($this->isSingletag()){
+            if ($echo)
+                echo $tag;
+            return $tag;
+        }
         // print a closing-tag element
         /* Register child elements */
         $htmlBefore = "";
@@ -309,9 +379,9 @@ class Element extends TObject
         /* Echo if necessary */
         if ($echo)
         {
-            echo "<{$tag}>" . $htmlBefore, $this->text, $htmlAfter . "</{$this->tag}>";
+            echo "{$tag}" , $htmlBefore, $this->text, $htmlAfter , "</{$this->tag}>";
         }
-        return "<{$tag}>" . $htmlBefore . $this->text . $htmlAfter . "</{$this->tag}>";
+        return "{$tag}" . $htmlBefore . $this->text . $htmlAfter . "</{$this->tag}>";
     }
 
     /**
@@ -324,7 +394,7 @@ class Element extends TObject
         $tag = $this->tag;
         foreach($this->attributes as $attr => $value)
         {
-            $tag .= " $attr=\"" . $value . "\"";
+            $tag .= " $attr=\"" . htmlentities($value) . "\"";
         }
         // print a single tag
         if ($this->isSingletag())

@@ -11,14 +11,14 @@ require_once TRIO_DIR.'/whereis.php';
  */
 class Input extends FormElement{
     public function __construct($type, $name, $default = '', $id = ''){
-        parent::__construct('input', $id);
+        parent::__construct('input', $name, $id);
 
         $this->setAttribute('type', $type);
         $this->setAttribute('name', $name);
-        if("" == $default ){
-            $this->setAttribute('value', $this->httpPost($name));
+        if('' == $default ){
+            $this->setValue(TGlobal::request($name));
         }else {
-            $this->setAttribute('value',$default);
+            $this->setValue($default);
         }
 
 
