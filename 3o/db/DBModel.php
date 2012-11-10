@@ -4,8 +4,7 @@ require_once TRIO_DIR.'/whereis.php';
 /**
  * Template for a database table model
  * @author Cornel Borina <cornel@scoalaweb.com>
- * @package 3oLibrary
- * @subpackage Database
+ * @package 3oScript
  */
 class DBModel extends TObject {
     /**
@@ -234,7 +233,7 @@ class DBModel extends TObject {
      * Load a model based on the primary key
      * @return DBModel a model object
      */
-    public static function generic_load($pk_fields, $key, $cache = '1 day'){
+    public static function generic_load($pk_fields, $key, $cache = false){
         //echo "<hr> load model generic ";
         //var_dump(func_get_args());
         //debug_print_backtrace();
@@ -312,7 +311,7 @@ class DBModel extends TObject {
     /**
      * Load multiple instances into memory at once
      */
-    protected static function generic_prepare($pk_fields, $keys, $cache = '1 day'){
+    protected static function generic_prepare($pk_fields, $keys, $cache = false){
 
         //echo "<hr> load generic prepare ";
         //var_dump(func_get_args());
@@ -384,26 +383,37 @@ class DBModel extends TObject {
     /**
      * Load instances of the model based on a query
      */
-
     public static function loadByQuery($query){
         //echo "<hr> load model by query ";
         //var_dump(func_get_args());
         //debug_print_backtrace();
 
-        $call_class = get_called_class();
+        $call_class = static::getClassForTable(static::$table_name);
 
         $results = self::$db->get_results($query, ARRAY_A);
-        $girls = array();
+        $elements = array();
 
         if ($results)
         foreach($results as $row){
-            $girl = new $call_class($row);
-            $girls[] = $girl;
-            static::$loaded[$row['id']] = $girl;
-            $girl->saveJSON(array($row['id']));
+            $element = new $call_class($row);
+            $elements[] = $element;
+            static::$loaded[$row['id']] = $element;
+            $element->saveJSON(array($row['id']));
         }
 
-        return $girls;
+        return $elements;
+    }
+    
+    /**
+     * Load the first element found in the givven query
+     * @param type $query
+     */
+    public static function loadFirst($query)
+    {
+        $elements = static::loadByQuery($query);
+        if (count($elements) > 0)
+            return $elements[0];
+        return null;
     }
 
     protected function generic_saveJSON($keys){
