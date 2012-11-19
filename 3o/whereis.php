@@ -36,14 +36,15 @@ $WHEREIS = array (
   'ScriptHead' => '/html/elements/ScriptHead.php',
   'Table' => '/html/elements/Table.php',
   'Button' => '/html/forms/Button.php',
-  'Checkbox' => '/html/forms/Checkbox.php',
   'CheckableFormElements' => '/html/forms/CheckableFormElements.php',
+  'Checkbox' => '/html/forms/Checkbox.php',
   'CheckboxGroup' => '/html/forms/CheckboxGroup.php',
   'Form' => '/html/forms/Form.php',
   'FormElement' => '/html/forms/FormElement.php',
   'FormLabel' => '/html/forms/FormLabel.php',
   'Hidden' => '/html/forms/Hidden.php',
   'HtmlDropdown' => '/html/forms/HtmlDropdown.php',
+  'HtmlRadio' => '/html/forms/HtmlRadio.php',
   'Input' => '/html/forms/Input.php',
   'PasswordField' => '/html/forms/PasswordField.php',
   'RadioGroup' => '/html/forms/RadioGroup.php',
@@ -56,6 +57,7 @@ $WHEREIS = array (
   'TObject' => '/TObject.php',
   'TOCore' => '/TOCore.php',
   'Util' => '/Util.php',
+  'TrioMail' => '/utils/TrioMail.php',
 ); 
 
 
