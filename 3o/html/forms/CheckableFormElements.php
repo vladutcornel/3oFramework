@@ -8,7 +8,9 @@ require_once TRIO_DIR . '/whereis.php';
  * the Input elements that can be displayed somewhere else.
  * You mus call ::show() for this to become displayable element
  *
- * @author cornel
+ * @author Cornel Borina <cornel@scoalaweb.com>
+ * @package 3oLibrary
+ * @subpackage HTML
  */
 abstract class CheckableFormElements extends FormElement {
 

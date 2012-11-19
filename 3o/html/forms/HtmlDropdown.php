@@ -5,11 +5,26 @@ require_once TRIO_DIR.'/whereis.php';
 /**
  * A Html Dropdown (<select>)
  *
- * @author cornel
+ * @author Cornel Borina <cornel@scoalaweb.com>
+ * @package 3oLibrary
+ * @subpackage HTML
  */
 class HtmlDropdown extends FormElement {
+    /**
+     * @var array The Option elements
+     */
     private $options = array();
+    
+    /**
+     * @var array The different group (optgroup) elements
+     */
     private $groups = array();
+    
+    /**
+     * 
+     * @param string $name the field name
+     * @param string $id
+     */
     public function __construct($name = '', $id = '') {
         parent::__construct('select', $name, $id);
     }
@@ -72,6 +87,10 @@ class HtmlDropdown extends FormElement {
     
 }
 
+/**
+ * HtmlDropdownGroup - a group of options (wrapper for <optgroup>)
+ * This class should not be instantiated by the user script
+ */
 class HtmlDropdownGroup extends HtmlElement
 {
     public function __construct($label, $id = '') {
@@ -98,6 +117,10 @@ class HtmlDropdownGroup extends HtmlElement
     }
 }
 
+/**
+ * HtmlDropdownOption - An option of the dropdown (wrapper for <option>)
+ * This class should not be instantiated by the user script
+ */
 class HtmlDropdownOption extends HtmlElement
 {
     public function __construct($value, $text = '', $id = '') {
@@ -112,7 +135,7 @@ class HtmlDropdownOption extends HtmlElement
     }
     
     public function unselect(){
-        $this->removeAttribute($attrName);
+        $this->removeAttribute('selected');
     }
     
     public function getValue(){

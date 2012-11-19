@@ -5,7 +5,9 @@ require_once TRIO_DIR.'/whereis.php';
 /**
  * A web page image (<img>)
  *
- * @author cornel
+ * @author Cornel Borina <cornel@scoalaweb.com>
+ * @package 3oLibrary
+ * @subpackage HTML
  */
 class HtmlImage extends HtmlElement{
     /**

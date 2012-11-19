@@ -2,9 +2,11 @@
 require_once TRIO_DIR.'/whereis.php';
 
 /**
- * Description of HtmlHeading
+ * A HTML heading (wrapper for h1,h2,...h6 tags)
  *
- * @author cornel
+ * @author Cornel Borina <cornel@scoalaweb.com>
+ * @package 3oLibrary
+ * @subpackage HTML
  */
 class HtmlHeading extends HtmlElement{
     public function __construct($level = 1, $content = '', $id = '') {

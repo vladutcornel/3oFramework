@@ -3,9 +3,11 @@
 require_once TRIO_DIR . '/whereis.php';
 
 /**
- * A group of check boxes that are not necesary for direct display
+ * A group of radio buttons that are not necesary for direct display
  *
- * @author cornel
+ * @author Cornel Borina <cornel@scoalaweb.com>
+ * @package 3oLibrary
+ * @subpackage HTML
  */
 class RadioGroup extends CheckableFormElements {
     public function __construct($name, $id = '') {

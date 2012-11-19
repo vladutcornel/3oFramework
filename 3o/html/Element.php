@@ -4,7 +4,8 @@ require_once TRIO_DIR.'/whereis.php';
 /**
  * A generic SGML (XML or HTML) element
  * @author Cornel Borina <cornel@scoalaweb.com>
- * @package 3oScript
+ * @package 3oLibrary
+ * @subpackage HTML
  */
 class Element extends TObject
 {

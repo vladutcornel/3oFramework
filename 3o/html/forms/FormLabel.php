@@ -3,12 +3,19 @@
 require_once TRIO_DIR.'/whereis.php';
 
 /**
- * Description of FormLabel
+ * A HTML Label element
  *
- * @author cornel
+ * @author Cornel Borina <cornel@scoalaweb.com>
+ * @package 3oLibrary
+ * @subpackage HTML
  */
 class FormLabel extends HtmlElement {
     
+    /**
+     * @param string $text The text content of the label
+     * @param string|FormElement $for The associated field (the id of the element or the element itself)
+     * @param string $id
+     */
     public function __construct($text = '', $for = '', $id = '') {
         parent::__construct('label', $id);
         
@@ -17,8 +24,8 @@ class FormLabel extends HtmlElement {
     }
     
     /**
-     * 
-     * @param FormElement|string $element the element or element's ID
+     * Set the associated field
+     * @param FormElement|string $element the element (FormElement) or element's ID
      * @return \FormLabel $this for method chaining
      */
     public function setFor($element)
