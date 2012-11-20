@@ -34,7 +34,16 @@ class DBModel extends TObject {
      * @staticvar array The table fields. Should be set for every child class
      */
     private static $fields = array();
+    
+    /**
+     * Track if any property was changed
+     * @var boolean
+     */
+    private $properties_changed = false;
 
+    /**
+     * @param array|object $init the initial field values
+     */
     public function __construct($init = array()){
 
         if (!is_array($init) && !is_object($init)) {
@@ -46,12 +55,11 @@ class DBModel extends TObject {
     }
 
     /**
-     * General getter
+     * General database getter
+     * @param string $var_name the field name
+     * @return mixed
      */
     public function getDBVar($var_name){
-//        if (method_exists($this, 'get'.  ucfirst($var_name))){
-//            return call_user_func(array($this, 'get'.  ucfirst($var_name)));
-//        }
         $var_name = strtolower($var_name);
         if(isset($this->$var_name))
             return $this->$var_name;
@@ -59,16 +67,28 @@ class DBModel extends TObject {
     }
 
     /**
-     * General setter
+     * General database setter
+     * @param string $var_name the field name
+     * @param mixed $new_value the new value
+     * @return \DBModel $this for method chaining
      */
     public function setDBVar($var_name, $new_value){
-//        if (method_exists($this, 'set'.  ucfirst($var_name))){
-//            call_user_func(array($this, 'set'.  ucfirst($var_name)), $new_value);
-//        } else{
             $var_name = strtolower($var_name);
+            $original = $this->$var_name;
             $this->$var_name = $new_value;
-//        }
+            
+            if ($original != $this->$var_name)
+            {
+                $this->properties_changed = true;
+            }
         return $this;
+    }
+    
+    /**
+     * Give other models the option to advertise changing properties
+     */
+    protected function markPropertyChange(){
+        $this->properties_changed = TRUE;
     }
 
     /**
@@ -81,6 +101,7 @@ class DBModel extends TObject {
             return $this->getDBVar(strtolower($matches['varname']));
         }
 
+        // setter
         $is_setter = preg_match("/^set(?P<varname>[a-z_]+)$/i",$function, $matches);
         if ($is_setter){
             return $this->setDBVar(strtolower($matches['varname']), $args[0]);
@@ -94,7 +115,7 @@ class DBModel extends TObject {
     }
 
     /**
-     * Bypas the TObject default mechanism of throwing an exception when a object property is not set
+     * Bypas the TObject default mechanism of throwing an exception when no setter was defined
      * @param string $name
      * @param string $value
      */
@@ -108,7 +129,8 @@ class DBModel extends TObject {
     }
 
     /**
-     * Bypas the TObject default mechanism of throwing an exception when a object property is not set
+     * Bypas the TObject default mechanism of throwing an exception when a 
+     * object property is not set and no getter was defined
      * @param string $name
      * @param string $value
      */
@@ -198,10 +220,11 @@ class DBModel extends TObject {
             $this->insert($save_fields,$save_values);
             // save the model after insertion, when we have auto-incremented primary keys
             $this->saveJSON();
-        } else {
-            // save the model file before update because database updates are slow and we want other entities to have access to the new data soner
+        } elseif ($this->properties_changed) {
+            // save the model file before update because database updates are slow and we want other entities to have access to the new data
             $this->saveJSON();
             $this->update($save_fields,$save_values);
+            $this->properties_changed = FALSE;
         }
 
     }
