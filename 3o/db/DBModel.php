@@ -41,13 +41,8 @@ class DBModel extends TObject {
             parse_str($init,$init);
         }
 
-        foreach($init as $key=>$value){
-            $valid = preg_match("/^[a-z_][a-z0-9_]+$/i",$key);
-
-            if ($valid){
-                $this->setDBVar($key, $value);
-            }
-        }
+        if (is_array($init) || is_object($init))
+            $this->multiSet($init);
     }
 
     /**
@@ -125,8 +120,27 @@ class DBModel extends TObject {
             return $this->getDBVar($name);
         }
     }
-
-
+    
+    /**
+     * Set multiple model properties
+     * @param array|object $fields
+     * @throws BadMethodCallException when the parameter is not an array or an object
+     * @return DBModel $this For method chaining
+     */
+    public function multiSet($fields)
+    {
+        if (!is_array($fields) && !is_object($fields))
+        {
+            throw new BadMethodCallException('DBModel::multiSet only accepts associative arrays or objects');
+        }
+        
+        foreach ($fields as $key => $value) {
+            $this->setDBVar($key, $value);
+        }
+        
+        return $this;
+    }
+    
     /**
      * Checks if the current table model has the requested field
      */
