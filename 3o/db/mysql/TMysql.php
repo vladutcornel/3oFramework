@@ -15,10 +15,32 @@ if(!defined('TMYSQL_CACHE_INTERVAL'))
     define ('TMYSQL_CACHE_INTERVAL', false, true);
 class TMysql {
     
+    /**
+     *
+     * @var string Database name
+     */
     private $db = false; 
+    /**
+     *
+     * @var string Database User
+     */
     private $user = 'root'; 
+    
+    /**
+     *
+     * @var string Database User's password
+     */
     private $password = '';
+    
+    /**
+     *
+     * @var the database host name or IP (in most cases, this should not be changed)
+     */
     private $host = 'localhost';
+    
+    /**
+     * @var string the cache directory (where to save the server cache)
+     */
     public $cache_dir = 'cache';
     
     /**
@@ -50,6 +72,24 @@ class TMysql {
      * @var mysqli_result Last result set
      */
     private $last_result;
+    
+    /**
+     * Total query count so far
+     * @var type 
+     */
+    private $query_count = 0;
+    
+    /**
+     * Only in development mode
+     * @var array All the queries executed in the current session.
+     */
+    private $query_log = array();
+    
+    /**
+     * Should all queries be saved for debugging?
+     * @var boolean 
+     */
+    public $development_mode = false;
     
     /**
      * 
@@ -86,6 +126,9 @@ class TMysql {
             case 'affected_rows':
             case 'rows_affected':
                 return $this->getAffectedRows();
+            case 'total_queries':
+            case 'query_count':
+                return $this->query_count;
         }
         
         // try to determine a sugestion
@@ -255,6 +298,8 @@ class TMysql {
         
         // get the results
         $this->last_result = $this->mysqli->query($query);
+        $this->query_count ++;
+        $this->addQuery($query);
         if (!$this->last_result instanceof mysqli_result)
         {
             throw new Exception('Invalid Query:'.$this->mysqli->error.' Query:'.$query);
@@ -317,6 +362,9 @@ class TMysql {
         // run query in mysql
         $this->mysqli->multi_query(implode (';', $this->query_queue));
         
+        $this->query_count+= count($this->query_queue);
+        $this->addQuery($this->query_queue);
+        
         // free mysqli results (for some reason, we have to do that...)
         do{
             $this->mysqli->store_result();
@@ -346,20 +394,37 @@ class TMysql {
         return $this->affected_rows;
     }
     
-    // EzSQL compatibility methods:
-    /*
-$db->get_results -- get multiple row result set from the database (or previously cached results)
-$db->get_row -- get one row from the database (or previously cached results)
-$db->get_col -- get one column from query (or previously cached results) based on column offset
-$db->get_var -- get one variable, from one row, from the database (or previously cached results)
-$db->query -- send a query to the database (and if any results, cache them)
-$db->debug -- print last sql query and returned results (if any)
-$db->vardump -- print the contents and structure of any variable
-$db->select -- select a new database to work with
-$db->get_col_info -- get information about one or all columns such as column name or type
-$db->hide_errors -- turn ezSQL error output to browser off
-$db->show_errors -- turn ezSQL error output to browser on
-$db->escape -- Format a string correctly to stop accidental mal formed queries under all PHP conditions
+    public function getQueryCount(){
+        return $this->query_count;
+    }
+    
+    protected function addQuery($query){
+        if (!$this->development_mode) return;
+        $query = array($query);
+        $this->query_log = array_merge($this->query_log, $query);
+    }
+    
+    public function getLog()
+    {
+        return $this->query_log;
+    }
+    
+    /* EZ SQL Compatibility methods
+     * Implemented
+     * $db->get_results -- get multiple row result set from the database (or previously cached results)
+     * $db->get_row -- get one row from the database (or previously cached results)
+     * $db->get_col -- get one column from query (or previously cached results) based on column offset
+     * $db->get_var -- get one variable, from one row, from the database (or previously cached results)
+     * $db->query -- send a query to the database (and if any results, cache them)
+     * $db->get_col_info -- get information about one or all columns such as column name or type
+     * $db->escape -- Format a string correctly to stop accidental mal formed queries under all PHP conditions
+     * 
+     * Not Implemented
+     * $db->debug -- print last sql query and returned results (if any)
+     * $db->vardump -- print the contents and structure of any variable
+     * $db->select -- select a new database to work with - TMySQL uses setDB
+     * $db->hide_errors -- turn ezSQL error output to browser off
+     * $db->show_errors -- turn ezSQL error output to browser on
      */
     
     /**
@@ -596,6 +661,8 @@ $db->escape -- Format a string correctly to stop accidental mal formed queries u
         if (preg_match('/^(SELECT|SHOW|DESCRIBE|EXPLAIN)\s+/i', $query))
         {
             $results = $this->mysqli->query($query);
+            $this->query_count++;
+            $this->addQuery($query);
             if (!$results instanceof mysqli_result)
             {
                 throw new Exception('Invalid Query');
@@ -632,6 +699,12 @@ $db->escape -- Format a string correctly to stop accidental mal formed queries u
 }
 
 if (!function_exists('readJSONCache')) {
+    /**
+     * Read the contents of Cache file
+     * @param string $cache_file the path to the cache file
+     * @return mixed
+     * @throws Exception
+     */
     function readJSONCache($cache_file)
     {
         try{
