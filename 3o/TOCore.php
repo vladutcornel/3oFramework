@@ -47,6 +47,12 @@ class TOCore {
      * @var string
      */
     public static $main_class = '';
+    
+    /**
+     * List of prefixes for the main class.
+     * @var array
+     */
+    public static $prefixes = array('Page', 'Page_', 'P');
 
     /**
      * This loads the requested page from a .php file
@@ -110,6 +116,36 @@ class TOCore {
         
         // return the filename, so we can figure the class to load
         return $parts[count($parts) - 1];
+    }
+    
+    /**
+     * Sets and returns the main class for the requested file.
+     * To avoid name conflicts with Library's classes, the main class can have a prefix
+     * @return boolean|string
+     */
+    public static function find_main_class()
+    {
+        
+        // The class name should only contain letters, numbers or underscores ("_")
+        static::$main_class = preg_replace('/[^a-z0-9_]+/i', '_', static::$file);
+        
+        if (!TGlobal::isIterable(static::$prefixes))
+        {
+            throw new UnexpectedValueException('Please provide an array or an object for main class prefix');
+        }
+        
+        foreach (static::$prefixes as $prefix) {
+            if (class_exists($prefix.static::$main_class)){
+                return (static::$main_class = 'Page_'.static::$main_class);
+            }
+        }
+        
+        if (class_exists(static::$main_class))
+        {
+            return static::$main_class;
+        }
+        
+        return false;
     }
 
     /**
@@ -175,17 +211,10 @@ class TOCore {
             static::$file = basename(TGlobal::server('PHP_SELF'), ".php");
         }
 
-        // The class name should only contain letters, numbers or underscores ("_")
-        static::$main_class = preg_replace('/[^a-z0-9_]+/i', '_', static::$file);
-        // the class name should start with a letter, so we add a "P" (Page) at the begining of number names
-        // e.g. 404 becomes P404
-        if (!preg_match("/^[a-z]/i", static::$main_class)) {
-            static::$main_class = 'P' . static::$main_class;
-        }
 
         // We have the name, let's run the script...
 
-        if (class_exists(static::$main_class)) {
+        if (static::find_main_class()) {
             $page = new static::$main_class(self::$params);
 
 
