@@ -178,7 +178,7 @@ class Element extends TObject
         {
             throw new Exception("Invalid attribute name");
         }
-        $this->attributes[$attrName] = "{$attrValue}";
+        $this->attributes[$attrName] = $attrValue;
         return $this;
     }
     
@@ -395,7 +395,7 @@ class Element extends TObject
         $tag = $this->tag;
         foreach($this->attributes as $attr => $value)
         {
-            $tag .= " $attr=\"" . htmlentities($value) . "\"";
+            $tag .= " $attr=\"" . htmlentities("$value") . "\"";
         }
         // print a single tag
         if ($this->isSingletag())
