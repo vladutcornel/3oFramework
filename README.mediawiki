@@ -1,3 +1,8 @@
+*Declimer*
+This project is still under pre-release development. 
+
+You can use this at your own risk. Features may come and go without a warning
+
 == This is Trio Framework ==
 
 === Why another Framework for PHP? ===
@@ -50,7 +55,7 @@ here are some of the projects or concepts I get inspired from for this project:
 
 ; Java
 The basis for this project was set some time ago when I learned Java after some
-experience with PHP. Forcing me an the potential Trio users into using
+experience with PHP. Forcing an the potential Trio users into using
 One Class per File originated from Java.
 ; LESS CSS
 The CSS component of Trio isn't yet, but will probably be inspired by LESS.
