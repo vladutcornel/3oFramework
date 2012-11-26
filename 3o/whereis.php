@@ -26,6 +26,8 @@ $WHEREIS = array (
   'UserInputException' => '/exceptions/UserInputException.php',
   'GenerateWhereis' => '/GenerateWhereis.php',
   'Element' => '/html/Element.php',
+  'DefinitionList' => '/html/elements/DefinitionList.php',
+  'DescriptionList' => '/html/elements/DescriptionList.php',
   'HtmlBlock' => '/html/elements/HtmlBlock.php',
   'HtmlHeading' => '/html/elements/HtmlHeading.php',
   'HtmlImage' => '/html/elements/HtmlImage.php',
@@ -50,14 +52,13 @@ $WHEREIS = array (
   'RadioGroup' => '/html/forms/RadioGroup.php',
   'Textarea' => '/html/forms/Textarea.php',
   'TextField' => '/html/forms/TextField.php',
+  'ToggleField' => '/html/forms/ToggleField.php',
   'UploadForm' => '/html/forms/UploadForm.php',
   'HtmlElement' => '/html/HtmlElement.php',
-  'ClientFunction' => '/js/ClientFunction.php',
   'TGlobal' => '/TGlobal.php',
   'TObject' => '/TObject.php',
   'TOCore' => '/TOCore.php',
   'Util' => '/Util.php',
-  'TrioMail' => '/utils/TrioMail.php',
 ); 
 
 
