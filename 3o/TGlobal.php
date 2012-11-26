@@ -298,28 +298,31 @@ if(!class_exists('TGlobal'))
         }
 
         /**
-         * Get a request parameter
+         * Get a request parameter.
+         * The order is compatible with php/ini's 'variables_order'. The only 
+         * addition is the x option that represents the provided $_GET  @see TGlobal::script
          * @param string $param the searched param
+         * @param mixed $default The value to be returned in case nothing was found
          * @param string $order the order of the searched (compatible with php/ini's 'variables_order' - http://php.net/manual/en/ini.core.php#ini.variables-order)
          * @return string
          */
-        public static function request($param, $order = 'escgp')
+        public static function request($param, $default = '', $order = 'escxgp')
         {
             // if we already searched for the param, we won't do it again..
             if (isset (self::$request_vars[$param]))
                 return self::$request_vars[$param];
 
             // search for the param in the provided order
-            $toreturn = "";
+            $toreturn = $default;
             $characters = array_reverse(str_split(strtolower($order)));
             foreach ($characters as $char)
             {
                 switch ($char)
                 {
-                    case 'e':
-                        if ('' != self::env($param))
+                    case 'p':
+                        if ('' != self::post($param))
                         {
-                            $toreturn = self::env($param);
+                            $toreturn = self::post($param);
                             break 2;// exit foreach
                         }
                         break;
@@ -330,10 +333,10 @@ if(!class_exists('TGlobal'))
                             break 2;// exit foreach
                         }
                         break;
-                    case 'p':
-                        if ('' != self::post($param))
+                    case 'x':
+                        if ('' != self::script($param))
                         {
-                            $toreturn = self::post($param);
+                            $toreturn = self::script($param);
                             break 2;// exit foreach
                         }
                         break;
@@ -348,6 +351,13 @@ if(!class_exists('TGlobal'))
                         if ('' != self::server($param))
                         {
                             $toreturn = self::server($param);
+                            break 2;// exit foreach
+                        }
+                        break;
+                    case 'e':
+                        if ('' != self::env($param))
+                        {
+                            $toreturn = self::env($param);
                             break 2;// exit foreach
                         }
                         break;
