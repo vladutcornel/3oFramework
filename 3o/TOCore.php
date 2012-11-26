@@ -122,7 +122,7 @@ class TOCore {
         return
                 (TGlobal::server('HTTP_X_REQUESTED_WITH') === 'XMLHttpRequest')
                 ||
-                (TGlobal::get('request') == 'ajax');
+                (TGlobal::request('request','','pgx') == 'ajax');
     }
 
     /**
@@ -131,7 +131,7 @@ class TOCore {
      * @return boolean
      */
     public static function isCss() {
-        return (TGlobal::get('request') == 'css');
+        return (TGlobal::request('request','','pgx') == 'css');
     }
 
     /**
@@ -140,7 +140,7 @@ class TOCore {
      * @return boolean
      */
     public static function isJavascript() {
-        return (TGlobal::get('request') == 'js');
+        return (TGlobal::request('request','','pgx') == 'js');
     }
 
     /**
@@ -148,9 +148,12 @@ class TOCore {
      * It loads the appropriate file and and an object of the main class
      * (that should have the same name as the file)
      *
+     * Unless it's a AJAX request and the ajax() method is provided, based on 
+     * the request type (POST or GET), it will try to fire get_request() or post_request()
+     * 
      * Then it tries to invoke the appropriate method for the request
      * (ajax, javascript, css) or the main() method that should be in all the
-     * class files ment for display
+     * class files ment for display.
      */
     public static function main() {
 
@@ -161,15 +164,15 @@ class TOCore {
         $queryArray = array();
 
         static::$file = "";
-        if (isset($_SERVER['REDIRECT_QUERY_STRING'])) {
+        if ('' != TGlobal::server('REDIRECT_QUERY_STRING')) {
             // We are here probably by a redirect, so load the page
-            parse_str($_SERVER['REDIRECT_QUERY_STRING'], $queryArray);
+            parse_str(TGlobal::server('REDIRECT_QUERY_STRING'), $queryArray);
             $page = $queryArray['page'];
             static::$file = self::load($page);
         } else {
             // We are here organic (via include or require),
             // so we should figure the name of the file
-            static::$file = basename($_SERVER['PHP_SELF'], ".php");
+            static::$file = basename(TGlobal::server('PHP_SELF'), ".php");
         }
 
         // The class name should only contain letters, numbers or underscores ("_")
