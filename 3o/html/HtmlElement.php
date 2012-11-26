@@ -89,10 +89,13 @@ class HtmlElement extends Element{
      * Remove a previously registered class
      */
     public function removeClass($class_name){
-        if(isset($this->classes["$class_name"]))
-        {
-            unset($this->classes["$class_name"]);
+        $args = func_get_args();
+        foreach ($args as $class_name){
+            if(isset($this->classes["$class_name"]))
+            {
+                unset($this->classes["$class_name"]);
 
+            }
         }
         $this->updateClasses();
         return $this;
