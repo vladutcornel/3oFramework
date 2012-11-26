@@ -34,12 +34,48 @@ class FormElement extends HtmlElement{
 
         $this->setAttribute('name', $name);
 
-        
-        
-        if (TGlobal::request($name) != '')
+        $this->guess_value();
+    }
+    
+    protected function guess_value(){
+        // find the array basename
+        $has_base = preg_match('/^\s*(?P<var_base>[^\[]+)/i', $this->getName(),$matches);
+        if (! $has_base || !isset($matches['var_base']))
         {
-            $this->setValue(TGlobal::request($name));
+            return;
         }
+        $request = TGlobal::request($matches['var_base']);
+        if (!is_array($request))
+        {
+            // the request param is not an array
+            $this->setValue($request);
+            return;
+        }
+        
+        // find sub-arrays in the name
+        $has_subarray = preg_match_all('/\[(?P<index>[^\]]*)\]/i', $this->getName(),$subarrays);
+        if (!$has_subarray || !isset($subarrays['index']) || count ($subarrays['index']) < 1)
+        {
+            // probably the name is just malformated
+            return;
+        }
+        
+        foreach ($subarrays['index'] as $index)
+        {
+            if ('' === $index)
+            {
+                // the last part is []
+                return;
+            }
+            if (is_array($request[$index]))
+            {
+                // move to the subarray
+                $request = $request[$index];
+            } else {
+                $this->setValue($request[$index]);
+            }
+        }
+        
     }
     
     public function setFixed($fixed = true){
