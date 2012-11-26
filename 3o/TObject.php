@@ -144,4 +144,12 @@ class TObject{
 
         throw new LogicException;
     }
+    
+    /**
+     * No Operation. 
+     * This can be used to take advantage of the whereis mechanism and load
+     * classes without actually using them just yet .
+     * You probably shouldn't abuse this feature.
+     */
+    public static function noop(){}
 }
