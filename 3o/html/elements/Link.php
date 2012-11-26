@@ -25,4 +25,9 @@ class Link extends HtmlInline{
     public function getHref(){
         return $this->getAttribute('href');
     }
+    
+    public function setHref($dest){
+        $this->setAttribute('href', $dest);
+        return $this;
+    }
 }
