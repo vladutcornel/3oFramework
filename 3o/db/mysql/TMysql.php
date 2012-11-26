@@ -279,7 +279,7 @@ class TMysql {
         $cache_file = $this->cache_dir.'/'.md5($query).'.json';
         if (count ($this->query_queue) == 0 && $cache != false)
         {
-            $cache_data = readJSONCache($cache_file);
+            $cache_data = Util::readSerializedCache($cache_file);
             if ($cache_data !== false)
             {
                 return $cache_data;
@@ -311,7 +311,7 @@ class TMysql {
         // save cache
         if (false != $cache)
         {
-            saveJSONCache($results, $cache_file, $cache);
+            Util::saveSerializedCache($results, $cache_file, $cache);
         }
         
         // save last query
@@ -519,7 +519,7 @@ class TMysql {
         
         // try to read cache
         $cache_file = $this->cache_dir.'/column-'.$offset.'-'.md5($this->minimize_query($query)).'.json';
-        if (($data = readJSONCache($cache_file)) !== false)
+        if (($data = Util::readSerializedCache($cache_file)) !== false)
         {
             return $data;
         }
@@ -567,7 +567,7 @@ class TMysql {
         if (false != $cache)
         {
             // save data to cache
-            saveJSONCache($data, $cache_file, $cache);
+            Util::saveSerializedCache($data, $cache_file, $cache);
         }
         
         return $data;
@@ -608,7 +608,7 @@ class TMysql {
         
         // try to read cache
         $cache_file = $this->cache_dir.'/var-'.$row.'-'.$column.'-'.md5($this->minimize_query($query)).'.json';
-        if (($data = readJSONCache($cache_file)) !== false)
+        if (($data = Util::readSerializedCache($cache_file)) !== false)
         {
             return $data;
         }
@@ -633,7 +633,7 @@ class TMysql {
         if (false != $cache)
         {
             // save data to cache
-            saveJSONCache($data, $cache_file, $cache);
+            Util::saveSerializedCache($data, $cache_file, $cache);
         }
         
         return $data;
@@ -695,62 +695,5 @@ class TMysql {
     function escape ($string)
     {
         return $this->mysqli->real_escape_string(stripslashes($string));
-    }
-}
-
-if (!function_exists('readJSONCache')) {
-    /**
-     * Read the contents of Cache file
-     * @param string $cache_file the path to the cache file
-     * @return mixed
-     * @throws Exception
-     */
-    function readJSONCache($cache_file)
-    {
-        try{
-            if (!file_exists($cache_file))
-            {
-                throw new Exception;
-            }
-            $contents = file_get_contents($cache_file);
-            if ($contents == false)
-            {
-                // == works here insted of === because empty string is equaly bad
-                throw new Exception;
-            }
-            $json = unserialize($contents);
-            if (false == $json)
-            {
-                throw new Exception;
-            }
-
-            if (!isset($json->timeout) || !isset($json->data))
-            {
-                throw new Exception;
-            }
-
-            $expire = new DateTime($json->timeout);
-            if ($expire->getTimestamp() <= time())
-            {
-                throw new Exception;
-            }
-            return unserialize($json->data);
-        }  catch (Exception $e){
-            return false;
-        }
-    }
-}
-
-if (!function_exists('saveJSONCache'))
-{
-    function saveJSONCache($data, $file, $cache_interval) {
-        $interval = string2date($cache_interval);
-        $expire = $interval->format(DateTime::ATOM);
-        
-        $obj = (object) array(
-            'timeout'=>$expire,
-            'data'=> serialize($data)
-        );
-        file_put_contents($file, serialize($obj));
     }
 }

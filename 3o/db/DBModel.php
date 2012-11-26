@@ -523,26 +523,3 @@ class DBModel extends TObject {
      */
     protected static $loaded = array();
 }
-
-/**
- * Change the class of an object
- *
- * @param object $obj
- * @param string $class_type
- * @author toma at smartsemantics dot com
- * @see http://www.php.net/manual/en/language.types.type-juggling.php#50791
- */
- if (!function_exists('changeClass')) {
-
-    function changeClass(&$obj, $class_type) {
-        if (class_exists($class_type, true)) {
-            $obj =
-                    unserialize(
-                    preg_replace(
-                            "/^O:[0-9]+:\"[^\"]+\":/i", "O:" . strlen($class_type) . ":\"" . $class_type . "\":", serialize($obj)
-                    )
-            );// unserialize
-        }// if class exists
-    }// changeClass()
-
-}// if changeClass() exists

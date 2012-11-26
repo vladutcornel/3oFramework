@@ -8,9 +8,12 @@ require_once TRIO_DIR.'/whereis.php';
  *
  * For the GET parameters, the real browser sent parameters are used, since PHP
  * may get confused if a redirect script is used (eg. using mod_rewrite in Apache)
+ * 
+ * This also implements some helper methods used by TOCore to avoid loading the 
+ * Util class
  *
  * @author Cornel Borina <cornel@scoalaweb.com>
- * @package 3oScript
+ * @package 3oFramework
  */
 if(!class_exists('TGlobal'))
 {
@@ -408,34 +411,41 @@ if(!class_exists('TGlobal'))
             return $original;
         }
 
+        /**
+         * Helper function to determine if the provided variable can be iterated 
+         * by foreach (it's an object or an array).
+         * 
+         * @param mixed $var the testet variable
+         * @return boolean true if it can be used in a foreach
+         */
+        public static function isIterable($var){
+            return (is_array($var) || is_object($var));
+        }
+        
+       /**
+        * Creates a DateTime object form a string, a DateInterval or a ISO8601 
+        * interval (P<date>T<time>, used by DateInterval Constructor)
+        * @param mixed $string
+        * @return \DateTime
+        * @throws DomainException  when the string can not be evaluated eather way.
+        * @todo This may be better in a separate class
+        */
+       public static function string2date($string)
+       {
+           if ($string instanceof DateTime) return $string;
+           if ($string instanceof DateInterval) return date_create ()->add($string);
+           try
+           {
+               // for relative format
+               $time = new DateTime($string);
+               return $time;
+           }  catch (Exception $e){}
+           // for P...T... format (ISO 8601)
+           $interval = new DateInterval($string);
+           return date_create()->add($interval);
+       }
     }
+    
     
 }
 TGlobal::init();
-
-if (!function_exists('string2date'))
-{
-    /**
-     * Creates a DateTime object form a string, a DateInterval or a ISO8601 interval (P<date>T<time>, used by DateInterval Constructor)
-     * @param mixed $string
-     * @return \DateTime
-     * @throws DomainException  when the string can not be evaluated eather way.
-     * @todo This may be better in a separate class
-     */
-    function string2date($string)
-    {
-        if ($string instanceof DateTime) return $string;
-        if ($string instanceof DateInterval) return date_create ()->add($string);
-        try
-        {
-            // for relative format
-            $time = new DateTime($string);
-            return $time;
-        }  catch (Exception $e){}
-        // for P...T... format (ISO 8601)
-        $interval = new DateInterval($string);
-        return date_create()->add($interval);
-    }
-    
-    
-}
