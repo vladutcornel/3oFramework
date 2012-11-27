@@ -136,7 +136,7 @@ class TOCore {
         
         foreach (static::$prefixes as $prefix) {
             if (class_exists($prefix.static::$main_class)){
-                return (static::$main_class = 'Page_'.static::$main_class);
+                return (static::$main_class = $prefix.static::$main_class);
             }
         }
         
