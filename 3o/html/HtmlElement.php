@@ -141,8 +141,13 @@ class HtmlElement extends Element{
      * @param boolean $echo true if he code should be printed
      */
     public function toCSS($echo = TRUE){
+        if (! $this->canDisplay())
+            return;
+        
         $css = $this->getStyle()->get(true);
         foreach($this->childs as $child){
+            if (!$child['element'] instanceof HtmlElement)
+                continue;
             $css.= $child['element']->toCSS(false);
         }
 

@@ -49,6 +49,12 @@ class Element extends TObject
      * @see Element::eachChild()
      */
     private $position = 0;
+    
+    /**
+     * Weather or not the element should be displayed
+     * @var boolean
+     */
+    private $displayable = true;
 
     /**
      * @param string $tagName The name of the element (e.g. "div" for <div>)
@@ -223,7 +229,43 @@ class Element extends TObject
      */
     public function getText()
     {
-        return $text;
+        return $this->text;
+    }
+    
+    /**
+     * Tells wether or not this element can be displayed
+     * @return boolean
+     */
+    public function canDisplay()
+    {
+        return $this->displayable;
+    }
+    
+    /**
+     * Set the displayable flag
+     * @param boolean $state
+     * @return \Element $this for method chaining
+     */
+    public function setDisplayable($state)
+    {
+        $this->displayable = $state?true:false;
+        return $this;
+    }
+    
+    /**
+     * Set the displayable flag to true
+     * @return \Element $this for method chaining
+     */
+    public function show(){
+        return $this->setDisplayable(true);
+    }
+    
+    /**
+     * Set the displayable flag to false
+     * @return \Element $this for method chaining
+     */
+    public function hide(){
+        return $this->setDisplayable(false);
     }
 
     /**
@@ -289,7 +331,7 @@ class Element extends TObject
      */
     public function getChildById($id){
         $elements = $this->childs;
-        foreach ($elements as $position => $lement){
+        foreach ($elements as $element){
             if ($element['element']->getId() == $id){
                 return $element;
             }
@@ -305,7 +347,7 @@ class Element extends TObject
      */
     public function getFirstOf($tag){
         $elements = $this->childs;
-        foreach ($elements as $position => $lement){
+        foreach ($elements as $element){
             if ($element['element']->getTag() == $tag){
                 return $element;
             }
@@ -329,6 +371,10 @@ class Element extends TObject
         return $this->childs[ $this->position++ ];
     }
     
+    /**
+     * Retrieves all known children of this element
+     * @return array
+     */
     public function getChildren()
     {
         $children = array();
@@ -352,6 +398,8 @@ class Element extends TObject
      */
     public function toCode($echo = true)
     {
+        if (! $this->canDisplay())
+            return '';
         /*Register start-tag attributes*/
         $tag = $this->startTag(false);
         if ($this->isSingletag()){
@@ -361,20 +409,22 @@ class Element extends TObject
         }
         // print a closing-tag element
         /* Register child elements */
-        $htmlBefore = "";
-        $htmlAfter = "";
+        $htmlBefore = '';
+        $htmlAfter = '';
         $nrChilds = count($this->childs);
         for($i = 0; $i < $nrChilds; $i++)
         {
+            // skip non-elements
+            if (!$this->childs[$i]['element'] instanceof Element)
+                continue;
+            // get the code before and after the text
             if ($this->childs[$i]['before'])
             {
                 $htmlBefore .= $this->childs[$i]['element']->toCode(false);
-                //$htmlBefore .= "\n";
             }
             else
             {
                 $htmlAfter .= $this->childs[$i]['element']->toCode(false);
-                //$htmlAfter .= "\n";
             }
         }
         /* Echo if necessary */
