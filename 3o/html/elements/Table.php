@@ -30,29 +30,29 @@ class Table extends HtmlElement {
     private $numCols = 0;
 
     /**
-     * @var HtmlElement
+     * @var HtmlTableHead
      */
     private $thead;
 
     /**
-     * @var HtmlElement
+     * @var HtmlTableFooter
      */
     private $tfoot;
 
     /**
-     * @var HtmlElement
+     * @var HtmlTableBody
      */
     private $tbody;
 
     /**
-     * @var HtmlElement[][]
+     * @var HtmlTableRow[][]
      */
-    private $rows = array('head' => array(), 'foot' => array(), 'body' => array());
+    private $rows = array(self::HEAD => array(), self::FOOT => array(), self::BODY => array());
 
     /**
-     * @var HtmlElement[][]
+     * @var HtmlTableCell[][]
      */
-    private $cells = array('head' => array(), 'foot' => array(), 'body' => array());
+    private $cells = array(self::HEAD => array(), self::FOOT => array(), self::BODY => array());
     private $caption;
 
     public function __construct($caption = '', $id = '') {
@@ -75,7 +75,7 @@ class Table extends HtmlElement {
      * @param int $row >0
      * @param int $col >0
      * @param string $region Table::HEAD, Table::BODY or Table::FOOT
-     * @return HtmlElement
+     * @return HtmlTableCell
      */
     public function cell($row = 1, $col = 1, $region = Table::BODY) {
         if ($row > $this->numRows[$region]) {
@@ -90,10 +90,11 @@ class Table extends HtmlElement {
     
     /**
      * Shorthand getter for head cells.
-     * Notice: Unlike the normal cell method, this one gets the column index first
+     * Notice: Unlike the normal cell method, this one gets the column index 
+     * first since table headers are usually one row 
      * @param int $col >0
      * @param int $row >0
-     * @return HtmlElement
+     * @return HtmlTableCell
      */
     public function head_cell($col = 1,$row = 1) {
         return $this->cell($row, $col,Table::HEAD);
@@ -116,7 +117,7 @@ class Table extends HtmlElement {
 
             // create table cells for the row
             for ($col = 0; $col < $this->numCols; $col++) {
-                $cell = new HtmlTableCell($cellTag, $this->getId() . '_cell_' . $this->numRows[$region] . 'x' . $col);
+                $cell = new HtmlTableCell($this,$region, $this->numRows[$region], $col, $cellTag, $this->getId() . '_cell_' . $this->numRows[$region] . 'x' . $col);
                 $this->cells[$region][$this->numRows[$region]][$col] = $cell;
                 $row->addChild($cell);
             }
@@ -153,7 +154,7 @@ class Table extends HtmlElement {
             $row = $this->rows[$region][$rownr];
             for ($col = 0; $col < $delta; $col++) {
                 $colnr = $this->numCols + $col;
-                $cell = new HtmlTableCell($cellTag, $this->getId() . '_cell_' . $rownr . 'x' . $colnr);
+                $cell = new HtmlTableCell($this,$region, $rownr, $colnr, $cellTag, $this->getId() . '_cell_' . $rownr . 'x' . $colnr);
                 $this->cells[$region][$rownr][$colnr] = $cell;
                 $row->addChild($cell);
             }
@@ -213,6 +214,111 @@ class Table extends HtmlElement {
         return $this->rows[$region][$index - 1];
     }
 
+    public function cell_row_span($row, $col, $span, $region = self::BODY)
+    {
+        if ($span < 1)
+            throw new UnexpectedValueException('The span of a cell should be a number greater than 0');
+        if (!$this->cell($row, $col, $region)->canDisplay())
+        {
+            $this->cell($row, $col, $region)->setAttribute('rowspan', $span);
+            return;
+        }
+        // the colspan of the element
+        $colspan = $this->cell($row, $col, $region)->getColSpan();
+        // initial row span
+        $rowspan = $this->cell($row, $col, $region)->getRowSpan();
+        
+        // calculate the last index
+        $stop_index = $row + $span;
+        
+        $stop_col_index = $col + $colspan;
+        
+        //
+        for ($row_index = $row; $row_index < $stop_index; $row_index ++)
+        {
+            for ($col_index = $col; $col_index < $stop_col_index; $col_index ++)
+                $this->cell($row_index, $col_index, $region)->hide();
+        }
+        
+        
+        $this->cell($row, $col, $region)->show();
+        $this->cell($row, $col, $region)->setAttribute('rowspan', $span);
+        
+        // show other previously hidden cells
+        $show_stop = $stop_index + $rowspan;
+        for ($row_index = $stop_index; $row_index <= $show_stop && $row_index <= $this->numRows[$region]; $row_index++)
+        {
+            for ($col_index = $col; $col_index < $stop_col_index; $col_index ++)
+            {
+                $this->cell($row_index, $col_index, $region)->show();
+            }
+        }
+        
+        // regenerate rowspan for previously hidden elements
+        for ($row_index = $stop_index; $row_index <= $show_stop && $row_index <= $this->numRows[$region]; $row_index++)
+        {
+            for ($col_index = $col; $col_index < $stop_col_index; $col_index ++)
+            {
+                
+                // stop at the first cell that has it's own row span
+                if ($this->cell($row_index, $col_index, $region)->getRowSpan() > 1){
+                    $this->cell($row_index, $col_index, $region)->rowspan($this->cell($row_index, $col_index, $region)->getRowSpan());
+                }
+            }
+        }
+    }
+    
+    public function cell_col_span($row, $col, $span, $region = self::BODY)
+    {
+        if ($span < 1)
+            throw new UnexpectedValueException('The span of a cell should be a number greater than 0');
+        if (!$this->cell($row, $col, $region)->canDisplay())
+        {
+            $this->cell($row, $col, $region)->setAttribute('colspan', $span);
+            return;
+        }
+        // the colspan of the element
+        $colspan = $this->cell($row, $col, $region)->getColSpan();
+        // initial row span
+        $rowspan = $this->cell($row, $col, $region)->getRowSpan();
+        
+        // calculate the last index
+        $stop_index = $col + $span;
+        
+        // the colspan of the element
+        $stop_row_index = $row + $rowspan;
+        
+        //
+        for ($col_index = $col; $col_index < $stop_index; $col_index ++)
+        {
+            for ($row_index = $row; $row_index < $stop_row_index; $row_index ++)
+                $this->cell($row_index, $col_index, $region)->hide();
+        }
+        
+        $this->cell($row, $col, $region)->show();
+        $this->cell($row, $col, $region)->setAttribute('colspan', $span);
+        
+        // show other previously hidden cells
+        $show_stop = $stop_index + $colspan;
+        for ($col_index = $stop_index; $col_index <= $show_stop && $col_index <= $this->numCols; $col_index++)
+        {
+            for ($row_index = $row; $row_index < $stop_row_index; $row_index ++)
+                $this->cell($row_index, $col_index, $region)->show();
+        }
+        
+         // regenerate col for previously hidden elements
+        for ($col_index = $stop_index; $col_index <= $show_stop && $col_index <= $this->numRows[$region]; $col_index++)
+        {
+            for ($row_index = $row; $row_index < $stop_row_index; $row_index ++)
+            {
+                
+                // stop at the first cell that has it's own row span
+                if ($this->cell($row_index, $col_index, $region)->getColSpan() > 1){
+                    $this->cell($row_index, $col_index, $region)->colspan($this->cell($row_index, $col_index, $region)->getColSpan());
+                }
+            }
+        }
+    }
 }
 
 class HtmlTableHead extends HtmlElement {
@@ -248,9 +354,86 @@ class HtmlTableRow extends HtmlElement {
 }
 
 class HtmlTableCell extends HtmlElement {
-
-    public function __construct($type = Table::NORMAL_CELL, $id = '') {
+    /**
+     *
+     * @var Table
+     */
+    private $table = null;
+    
+    /**
+     * The position of the cell's row in the table
+     * @var int 
+     */
+    private $row_index = 0;
+    
+    /**
+     * The position of the cell in the row
+     * @var int 
+     */
+    private $col_index = 0;
+    
+    /**
+     * The region from the table the cell is in
+     * @var type 
+     */
+    private $region = Table::BODY;
+    
+    /**
+     * 
+     * @param Table $table
+     * @param string $region
+     * @param int $row
+     * @param int $col
+     * @param string $type
+     * @param string $id
+     */
+    public function __construct($table, $region, $row, $col, $type = Table::NORMAL_CELL, $id = '') {
         parent::__construct((Table::HEAD_CELL == $type) ? 'th' : 'td', $id);
+        
+        $this->table = $table;
+        $this->region = $region;
+        $this->row_index = $row;
+        $this->col_index = $col;
+    }
+    
+    /**
+     * Set the span of the cell in one method call
+     * @param int $rows
+     * @param int $cols
+     */
+    public function span($rows = 1, $cols = 1){
+        $this->rowspan($rows);
+        $this->colspan($cols);
+    }
+    public function rowspan($rows)
+    {
+        if ($rows < 1)
+            throw new UnexpectedValueException('The span of a cell should be a number greater than 0');
+        $this->table->cell_row_span($this->row_index + 1, $this->col_index + 1, $rows, $this->region);
+    }
+    
+    public function colspan($cols)
+    {
+        if ($cols < 1)
+            throw new UnexpectedValueException('The span of a cell should be a number greater than 0');
+        $this->table->cell_col_span($this->row_index + 1, $this->col_index + 1, $cols, $this->region);
+    }
+    
+    public function getRowSpan(){
+        if (!$this->getAttribute('rowspan'))
+        {
+            return 1;
+        }
+        
+        return intval($this->getAttribute('rowspan'));
     }
 
+    public function getColSpan(){
+        if (!$this->getAttribute('colspan'))
+        {
+            return 1;
+        }
+        
+        return intval($this->getAttribute('colspan'));
+    }
 }
