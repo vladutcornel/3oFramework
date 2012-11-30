@@ -59,6 +59,7 @@ $WHEREIS = array (
   'TObject' => '/TObject.php',
   'TOCore' => '/TOCore.php',
   'Util' => '/Util.php',
+  'TrioTimestamp' => '/utils/TrioTimestamp.php',
 ); 
 
 
