@@ -404,12 +404,14 @@ class HtmlTableCell extends HtmlElement {
     public function span($rows = 1, $cols = 1){
         $this->rowspan($rows);
         $this->colspan($cols);
+        return $this;
     }
     public function rowspan($rows)
     {
         if ($rows < 1)
             throw new UnexpectedValueException('The span of a cell should be a number greater than 0');
         $this->table->cell_row_span($this->row_index + 1, $this->col_index + 1, $rows, $this->region);
+        return $this;
     }
     
     public function colspan($cols)
@@ -417,6 +419,7 @@ class HtmlTableCell extends HtmlElement {
         if ($cols < 1)
             throw new UnexpectedValueException('The span of a cell should be a number greater than 0');
         $this->table->cell_col_span($this->row_index + 1, $this->col_index + 1, $cols, $this->region);
+        return $this;
     }
     
     public function getRowSpan(){

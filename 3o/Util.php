@@ -20,7 +20,7 @@ abstract class Util{
      */
     public static function word_slice($input, $start = 0, $words = 80)
     {
-        $arr = preg_split("/[\s]+/", $str,$words+1);
+        $arr = preg_split("/[\s]+/", $input,$words+1);
 	return join(' ',array_slice($arr,$start,$words));
     }
     
