@@ -6,7 +6,7 @@ if (!defined('SITE_ROOT')) {
 
 if (!defined('TRIO_DIR'))
     define('TRIO_DIR', __DIR__);
-require_once TRIO_DIR . '/whereis.php';
+require_once TRIO_DIR . '/framework-core.php';
 
 /**
  * The center of 3OScript redirect mechanism
@@ -14,7 +14,8 @@ require_once TRIO_DIR . '/whereis.php';
  * For non-php files, it just dumpes the contents and sets the Mime type
  * accordinglly
  * @author Cornel Borina <cornel@scoalaweb.com>
- * @package 3oScript
+ * @package 3oFramework
+ * @subpackage Core
  */
 class TOCore {
 
@@ -129,7 +130,7 @@ class TOCore {
         // The class name should only contain letters, numbers or underscores ("_")
         static::$main_class = preg_replace('/[^a-z0-9_]+/i', '_', static::$file);
         
-        if (!TGlobal::isIterable(static::$prefixes))
+        if (!TUtil::isIterable(static::$prefixes))
         {
             throw new UnexpectedValueException('Please provide an array or an object for main class prefix');
         }
@@ -178,10 +179,54 @@ class TOCore {
     public static function isJavascript() {
         return (TGlobal::request('request','','pgx') == 'js');
     }
+    
+    /**
+     * Load the appropriate method from the given class.
+     * This assumes the class file is loaded or loadable via the whereis mechanism.
+     * This is used by TOCore to load the main class, but can be used load other
+     * class as if it was the main class
+     * @param string|object $class
+     * @throws TOCoreException when there is no main method in the class
+     */
+    public static function parse($class){
+        
+        if(!is_object($class)){
+            $page = new $class(self::$params);
+        } else {
+            $page = $class;
+        }
+        
+        if ('POST' == TGlobal::server('REQUEST_METHOD') && method_exists($page, 'post_request')) {
+            $page->post_request(self::$params);
+        } elseif (method_exists($page, 'get_request')) {
+            $page->get_request(self::$params);
+        }
+        
+        if (self::isAjax() && method_exists($page, 'ajax')) {
+            //run the main AJAX method
+            $page->ajax(self::$params);
+        } else {
+
+            if (self::isJavascript() && method_exists($page, 'javascript')) {
+                // run Javascript method
+                $page->javascript(self::$params);
+            } elseif (self::isCss() && method_exists($page, 'css')) {
+                // run CSS method
+                $page->css(self::$params);
+            } elseif (method_exists($page, 'main')) {
+                // run the main method
+                $page->main(self::$params);
+            } else {
+                // No main method. The fun is over
+                throw new TOCoreException(self::$file, TOCoreException::NO_MAIN);
+            }
+        }
+
+    }
 
     /**
      * The main function for the TOCore class. This is loaded by default.
-     * It loads the appropriate file and and an object of the main class
+     * It loads the appropriate file and an object of the main class
      * (that should have the same name as the file)
      *
      * Unless it's a AJAX request and the ajax() method is provided, based on 
@@ -215,37 +260,12 @@ class TOCore {
         // We have the name, let's run the script...
 
         if (static::find_main_class()) {
-            $page = new static::$main_class(self::$params);
-
-
-            if (self::isAjax() && method_exists($page, 'ajax')) {
-                //run the main AJAX method
-                $page->ajax(self::$params);
-            } else {
-                // add support for POST requests
-                if ('POST' == TGlobal::server('REQUEST_METHOD') && method_exists($page, 'post_request')) {
-                    $page->post_request(self::$params);
-                } elseif (method_exists($page, 'get_request')) {
-                    $page->get_request(self::$params);
-                }
-
-                if (self::isJavascript() && method_exists($page, 'javascript')) {
-                    // run Javascript method
-                    $page->javascript(self::$params);
-                } elseif (self::isCss() && method_exists($page, 'css')) {
-                    // run CSS method
-                    $page->css(self::$params);
-                } elseif (method_exists($page, 'main')) {
-                    // run the main method
-                    $page->main(self::$params);
-                } else {
-                    // No main method. The fun is over
-                    die('There is no method main() in ' . static::$file . '.php <br> The script can not be loaded');
-                }
-            }
+            
+            self::parse(new static::$main_class(static::$params));
+            
         } else {
             // The class is not declared (corectly)
-            die('<p>Can\'t find the main class.<br>Please create a ' . static::$file . ' class in ' . static::$file . '.php</p>');
+            throw new TOCoreException(static::$file,  TOCoreException::NO_CLASS);
         }
 
         ob_end_flush();
@@ -253,4 +273,25 @@ class TOCore {
 
 }
 
-TOCore::main();
+class TOCoreException extends Exception{
+    const NO_CLASS = 1;
+    const NO_MAIN = 2;
+    public $request_file = '';
+    
+    public function __construct($file, $code, $previous) {
+        switch($code){
+            case self::NO_CLASS:
+                $message = 'Can\'t find the main class.
+                    Please create a ' . $file . ' class in ' . $file . '.php</p>';
+                break;
+            case self::NO_MAIN:
+                $message = 'There is no method main() in the ' . $file . '.php class file.
+                    The script can not be loaded';
+                break;
+            default:
+                $message = 'Undefined TOCore exception';
+        }
+        parent::__construct($message, $code, $previous);
+        $this->request_file = $file;
+    }
+}
