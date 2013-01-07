@@ -1,8 +1,7 @@
-
-ErrorDocument 404 /404.php
-
-# Redirect every request to TO-core.php
+# Redirect every request to 3obootstrap.php
+# you should edit this file to fit your needs
 <IfModule mod_rewrite.c>
 RewriteEngine On
-RewriteRule (.+)(\.php)? 3o/TOCore.php?page=$1
+RewriteBase /trio/
+RewriteRule (.+)(\.php)? 3obootstrap.php?page=$1
 </IfModule>
