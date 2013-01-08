@@ -1,11 +1,41 @@
-*Declimer*
-This project is still under pre-release development. 
+Trio Core (or TrioFramework Core) is the central part of TrioFramework.
+Trio gives you complete control over your site and file structure while waiting in a corner until you ask it for help. You should be able use your own design patterns, maybe your own libraries and your own tools in conjunction with TrioFramework and Trio won't shall never be the one that breaks things.
 
-You can use this at your own risk. Features may come and go without a warning
+Current Version: 0.1.beta
 
-== This is Trio Framework ==
+== Crash course ==
+All TrioFramework programming is and should be done Object Oriented (OOP).
+The main porpoise of TrioCore is to load the appropriate class from the appropriate file and launch the appropriate method. 
+TrioCore looks at the request URL and loads the first PHP script it can find from left to right and sends all the other parameters the your class's methods like some extra parameters besides POST and GET. That makes for a very flexible site structure that fits any of your design ideas. 
+There is little chance it will load a non-PHP file wrong since it features an advanced mime-type detector (that you can use in your project too).
 
-=== Why another Framework for PHP? ===
+TrioCore also features some helper classes and methods. My proud and joy is the "Whereis" mechanism. This will make you forget about PHP's include and require. Just using Whereis::register($your_class_name, $file_path) you can advertise where a class is located and the file will be loaded only when you start using the class. So while your library or project grows, the loading times can remain roughly the same.
+Trio comes with a nice tool to access super-global variables from PHP that won't generate nasty Notices and warnings if some parameter does not exist. Since Trio uses htaccess redirects, PHP can get tricked and $_GET will have the wrong parameters, but that won't be a problem if you use TGlobal::get($param). TGlobal also makes it easy to work with cookies and sessions.
+
+Another useful class is TUtil that implements some static methods that you may need to use at some point, including an easy cache mechanism, smart string to DateTime conversion and Mime Type detection.
+
+The Core package also includes TObject, a class that can be the base class for all your classes. Using magic methods, can give your OOP code a beautiful touch
+
+=== Download ===
+Make sure you download the Core branch from GitHub [https://github.com/vladutcornel/3oFramework/archive/Core.zip] and NOT the "master" branch. The reason being that the TrioLibrary (the second component of TrioFramework) is not finished at this point and features can change at any time.
+I won't start versioning that branch unless I am satisfied with every single component. You can  help with suggestions and code if you can.
+
+=== System Requirements ===
+Please tell me about any bugs you find while using or testing this framework. I will try to fix them as soon as possible.
+By now, TrioFramework works or should work with the following requirements:
+* PHP 5.3 or newer - I try to use the newest technologies, but with PHP I try to limit myself to version 5.3 since this is the most supported version by the hosting providers. If you have an older version and can't upgrade, most features won't work
+* Apache 2.2+ - it will probably work on about any Apache version that has mod_rewrite
+* mod_rewite (Recomanded) - I remember that I tried Trio without htaccess redirects and worked, but you will have to include the bootstrap in every file, loosing half of it's beauty.
+
+=== Instalation ===
+You can dump the framework files anywhere on your computer as long as you can access them from a "bootstrap file" - a PHP file that is loaded on every request and starts the Trio Engine (TOCore class). For starters, you can live it in the site's root. Just edit 3obootstrap.php and include the 3o/framework-core.php file somehow.
+You have to decide if the new website will be power the domain root (http://example.com/) or just a subdirectory (http://example.com/folder/).
+According to your decision, edit 3obootstrap.php (you can also rename it) and make .htaccess to always redirect to this file. Pay attention at the RewriteBase directive.
+
+=== Testing the default examples ===
+Check out the provided index and test files to see what they do. Use different URLs if you don't understand how the parameters are passed.
+
+== Why another Framework for PHP? ==
 I have tried several PHP frameworks before, but, in my opinion, all fall
 short in one important point: lack of versatility. You become a brainless zombie
 to that one structure. That may be great for some projects and some development 
@@ -17,13 +47,13 @@ of one framework or worse: messing-up page loading times by including ALL
 framework files. Yet, I still want access to every part of the Framework Library.
 This is the Trio Philosophy: Make IT simple.
 
-=== Trio Components ===
+== Trio Components ==
 The trio Script Framework consists of Two (may add more in the future) main 
 components:
 * The TriO Core
 * The TriO Library
 
-==== Trio Core ====
+=== Trio Core ===
 This is the part where you forget you program a website on top of a PHP framework.
 It's somewhat inspired by Java because every file is a completely different 
 program written in OOP fashion. All you have to do is to write a main() function 
@@ -32,7 +62,7 @@ will run it whenever you access the file in a web-browser.
 You don't really have to know much about Object Oriented Programming to get 
 started with simple learning projects.
 
-==== Trio library ====
+=== Trio library ===
 This is and will continue to be subject to active development.
 While the Core was not much of a brainer, just a bunch of PHP techniques put
 together, the Library is a lot more complex.
@@ -49,7 +79,7 @@ build a rich Web Application without JS. I'm still trying to figure this out
 without forcing anyone to learn a completely new language as JavaScript.
 
 
-=== Sources of inspiration ===
+== Sources of inspiration ==
 With Trio Framework, I don't want to invent any weal, I rather redesign it. So
 here are some of the projects or concepts I get inspired from for this project:
 
