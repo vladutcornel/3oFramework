@@ -9,7 +9,17 @@ require_once TRIO_DIR.'/framework-core.php';
  * @subpackage Core
  */
 abstract class TUtil{
+    /**
+     * Trick to make this class static (can not be instantiated)
+     */
     final function __construct(){}
+    
+    /**
+     * The URL used to fetch the known mime types - if this ever changes
+     * @see TUtil::getMimeType
+     */
+    const MIME_TYPES_URL = 'http://svn.apache.org/repos/asf/httpd/httpd/trunk/docs/conf/mime.types';
+    
 
     /**
      * Extracts a portion of the text from the word at the starting position
@@ -176,4 +186,61 @@ abstract class TUtil{
 
         return $original;
     }
+    
+    /**
+     * Return the Mime Type of a file using the best method available.
+     * it is based on UNIX file command, but will fallback to a 
+     * extension-based guessing on Windows or other systems
+     * @param string $file the file (it must exist)
+     * @return string a mime type like "image/png"
+     */
+    public static function getMimeType($file){
+        // for invalid files, guess based on the extension
+        if (!file_exists($file)){
+            return self::guessMimeType($file);
+        }
+        
+        //try the UNIX file command to get something like "text/html; charset=utf-8"
+        $file_data = exec('file -bi "'.addcslashes ($file,'"').'"');
+        if (!$file_data){
+            // the sistem does not have the file comand (it's not UNIX)
+            return self::guessMimeType($file);
+        }
+        // $file_data should be something like "text/html; charset=utf-8"
+        list($type) = explode(';', $file_data);
+        $valid = preg_match('#^(?P<type>[a-z\-\+]+/[a-z\-\+]+)#i', $file_data, $matches);
+        if (!$valid){
+            // for some reason, the mime could not be determined, so we guess it
+            return self::guessMimeType($file);
+        }
+        
+        return $matches['type'];
+    }
+    
+    /**
+     * Try to guess the file mime type based on the extension.
+     * You should use getMimeType instead, unless you are absolutely certain that
+     * your script will always run ONLY on a system that will fallback to this (like Windows)
+     * @param string $file
+     * @return string a mime type like "image/png"
+     */
+    public static function guessMimeType($file){
+        $tempfile = sys_get_temp_dir().'/3oMimes';
+        $mime_array = self::readSerializedCache($tempfile);
+        if (!is_array($mime_array) || count($mime_array) < 1){
+            $mime_array = array();
+            foreach(@explode("\n",@file_get_contents(self::MIME_TYPES_URL))as $x)
+                if(isset($x[0])&&$x[0]!=='#'&&preg_match_all('#([^\s]+)#',$x,$out)&&isset($out[1])&&($c=count($out[1]))>1)
+                    for($i=1;$i<$c;$i++)
+                        $mime_array[$out[1][$i]] = $out[1][0];
+             // cache everything for one day       
+             self::saveSerializedCache($mime_array, $tempfile, '1 day');
+        }
+        $fileext = substr(strrchr($file, '.'), 1); 
+        
+        // if the file type can not be determined, it will use "text/plain"
+        $mime_array = self::populate($mime_array, array($fileext => 'text/plain'));
+        return $mime_array[$fileext];
+    }
+    
 }

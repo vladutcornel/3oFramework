@@ -84,7 +84,7 @@ class TOCore {
 
             if ($fileinfo['extension'] != 'php') {
                 // it's not a php script
-                header("Content-Type: " . mime_content_type(SITE_ROOT . '/' . $page));
+                header("Content-Type: " . TUtil::getMimeType(SITE_ROOT . '/' . $page));
                 echo file_get_contents(SITE_ROOT . '/' . $page);
 
                 die();
@@ -196,17 +196,17 @@ class TOCore {
             $page = $class;
         }
         
-        if ('POST' == TGlobal::server('REQUEST_METHOD') && method_exists($page, 'post_request')) {
-            $page->post_request(self::$params);
-        } elseif (method_exists($page, 'get_request')) {
-            $page->get_request(self::$params);
-        }
         
         if (self::isAjax() && method_exists($page, 'ajax')) {
             //run the main AJAX method
             $page->ajax(self::$params);
         } else {
 
+            if ('POST' == TGlobal::server('REQUEST_METHOD') && method_exists($page, 'post_request')) {
+                $page->post_request(self::$params);
+            } elseif (method_exists($page, 'get_request')) {
+                $page->get_request(self::$params);
+            }
             if (self::isJavascript() && method_exists($page, 'javascript')) {
                 // run Javascript method
                 $page->javascript(self::$params);
