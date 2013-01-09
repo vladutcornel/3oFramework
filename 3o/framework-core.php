@@ -13,8 +13,8 @@ if (!defined("TRIO_DIR"))
 include_once TRIO_DIR.'/whereis.php';
 
 Whereis::register(array (
-    'TOCore' => TRIO_DIR.'/TOCore.php',
-    'TGlobal' => TRIO_DIR.'/TGlobal.php',
-    'TObject' => TRIO_DIR.'/TObject.php',
-    'TUtil' => TRIO_DIR.'/TUtil.php',
+    '\TOCore' => TRIO_DIR.'/TOCore.php',
+    '\TGlobal' => TRIO_DIR.'/TGlobal.php',
+    '\TObject' => TRIO_DIR.'/TObject.php',
+    '\TUtil' => TRIO_DIR.'/TUtil.php',
 ));
