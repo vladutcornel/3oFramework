@@ -1,7 +1,7 @@
 Trio Core (or TrioFramework Core) is the central part of TrioFramework.
 Trio gives you complete control over your site and file structure while waiting in a corner until you ask it for help. You should be able use your own design patterns, maybe your own libraries and your own tools in conjunction with TrioFramework and Trio will never be the one that breaks things.
 
-Current Version: 0.1.beta2
+Current Version: 0.beta2
 
 == Crash course ==
 All TrioFramework programming is and should be done Object Oriented (OOP).
@@ -33,7 +33,7 @@ You have to decide if the new website will be power the domain root (http://exam
 According to your decision, edit 3obootstrap.php (you can also rename it) and make .htaccess to always redirect to this file. Pay attention at the RewriteBase directive.
 
 === Testing the default examples ===
-Check out the provided index and test files to see what they do. Use different URLs if you don't understand how the parameters are passed.
+Check out the provided index and test.php files to see what they do. Use different URLs if you don't understand how the parameters are passed.
 
 === Why another Framework for PHP? ===
 I have tried several PHP frameworks before, but, in my opinion, all fall
