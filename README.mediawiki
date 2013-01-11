@@ -1,7 +1,7 @@
 Trio Core (or TrioFramework Core) is the central part of TrioFramework.
-Trio gives you complete control over your site and file structure while waiting in a corner until you ask it for help. You should be able use your own design patterns, maybe your own libraries and your own tools in conjunction with TrioFramework and Trio won't shall never be the one that breaks things.
+Trio gives you complete control over your site and file structure while waiting in a corner until you ask it for help. You should be able use your own design patterns, maybe your own libraries and your own tools in conjunction with TrioFramework and Trio will never be the one that breaks things.
 
-Current Version: 0.1.beta
+Current Version: 0.1.beta2
 
 == Crash course ==
 All TrioFramework programming is and should be done Object Oriented (OOP).
@@ -35,7 +35,7 @@ According to your decision, edit 3obootstrap.php (you can also rename it) and ma
 === Testing the default examples ===
 Check out the provided index and test files to see what they do. Use different URLs if you don't understand how the parameters are passed.
 
-== Why another Framework for PHP? ==
+=== Why another Framework for PHP? ===
 I have tried several PHP frameworks before, but, in my opinion, all fall
 short in one important point: lack of versatility. You become a brainless zombie
 to that one structure. That may be great for some projects and some development 
@@ -47,13 +47,18 @@ of one framework or worse: messing-up page loading times by including ALL
 framework files. Yet, I still want access to every part of the Framework Library.
 This is the Trio Philosophy: Make IT simple.
 
-== Trio Components ==
+=== Trio Components ===
 The trio Script Framework consists of Two (may add more in the future) main 
 components:
 * The TriO Core
 * The TriO Library
 
-=== Trio Core ===
+==== Trio Core ====
+
+''' Great! ''' Trio Core is in Beta stage now. That means it's safe to start testing 
+it and maybe even use it in your great projects and it will only get bug-fixes 
+and maybe new features from now on.
+
 This is the part where you forget you program a website on top of a PHP framework.
 It's somewhat inspired by Java because every file is a completely different 
 program written in OOP fashion. All you have to do is to write a main() function 
@@ -62,8 +67,14 @@ will run it whenever you access the file in a web-browser.
 You don't really have to know much about Object Oriented Programming to get 
 started with simple learning projects.
 
-=== Trio library ===
-This is and will continue to be subject to active development.
+==== Trio Library ====
+
+: Curiosity doesn't really kill the cat, but sometimes it takes you to Mars. 
+: While some basic features from Trio Library are implemented and tested, others may not be. I would appreciate it if you find the time to try them out and tell me what you think of it. Some features may never land in the final release
+
+Trio Library will be composed of several autonomous modules based only on Trio Core
+
+This part is and will continue to be subject to active development.
 While the Core was not much of a brainer, just a bunch of PHP techniques put
 together, the Library is a lot more complex.
 It's the reason this is called TriO Framework: One Object Oriented Framework.
@@ -79,23 +90,31 @@ build a rich Web Application without JS. I'm still trying to figure this out
 without forcing anyone to learn a completely new language as JavaScript.
 
 
-== Sources of inspiration ==
+=== Sources of inspiration ===
 With Trio Framework, I don't want to invent any weal, I rather redesign it. So
 here are some of the projects or concepts I get inspired from for this project:
 
-; Java
-The basis for this project was set some time ago when I learned Java after some
-experience with PHP. Forcing an the potential Trio users into using
-One Class per File originated from Java.
-; LESS CSS
-The CSS component of Trio isn't yet, but will probably be inspired by LESS.
-It's a tool that really improves CSS
-; jQuery
-jQuery may be for JavaScript part what LESS I mentioned will be for CSS. 
-I'm also looking at other JS Frameworks such as MooTools
-; ezSQL
-One great tool for database access. Trio MySQL is designed to be (almost) completely
-compatible with ezSQL, but using MySQLi and different caching.
-; Active Records
-Even if complete Active Records implementation is not a goal, the database 
-framework is a bit inspired by this concept.
+''' Java '''
+: The basis for this project was set some time ago when I learned Java after some
+: experience with PHP. Forcing an the potential Trio users into using
+: One Class per File originated from Java.
+
+''' LESS CSS '''
+: The CSS component of Trio isn't yet, but will probably be inspired by LESS.
+: It's a tool that really improves CSS
+
+''' jQuery '''
+: jQuery may be for JavaScript part what LESS I mentioned will be for CSS. 
+: I'm also looking at other JS Frameworks such as MooTools
+
+''' ezSQL '''
+: One great tool for database access. Trio MySQL is designed to be (almost) completely
+: compatible with ezSQL, but using MySQLi and different caching.
+
+''' Active Records '''
+: Even if complete Active Records implementation is not a goal, the database 
+: framework is a bit inspired by this concept.
+
+== Help ==
+Tutorials may appear in various places ( [[https://github.com/vladutcornel/3oFramework/wiki|GitHub Wiki]] or some other dedicated website) when I have the time - there's only so much a student with a full-time job in a different country can do in his last year of collage.
+Any help you can give will be deeply appreciated
