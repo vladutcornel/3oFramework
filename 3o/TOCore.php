@@ -54,6 +54,19 @@ class TOCore {
      * @var array
      */
     public static $prefixes = array('Page', 'Page_', 'P');
+    
+    /**
+     * Set if an exception should be thrown if there is no class in the loaded file.
+     * @var boolean
+     */
+    public static $throw_class_exception = true;
+    
+    /**
+     * Sets if an exception should be thrown if there is no method to be loaded
+     * Note that this doesn't matter if TOCore::$throw_class_exception is set to false
+     * @var boolean 
+     */
+    public static $throw_method_exception = true;
 
     /**
      * This loads the requested page from a .php file
@@ -109,7 +122,7 @@ class TOCore {
             }
 
             // we still couldn't find a file to load
-            echo '<p>Error:file not found</p>';
+            throw new TOCoreException('',TOCoreException::NO_FILE);
         }
 
         // save the loaded file path
@@ -218,16 +231,20 @@ class TOCore {
                 $page->main(self::$params);
             } else {
                 // No main method. The fun is over
-                throw new TOCoreException(self::$file, TOCoreException::NO_MAIN);
+                if(static::$throw_method_exception)
+                    throw new TOCoreException(self::$file, TOCoreException::NO_MAIN);
             }
         }
 
     }
 
     /**
-     * The main function for the TOCore class. This is loaded by default.
+     * This should only be called once on a page request.
+     * Use TOCore::parse to share functionality between web pages.
+     * 
      * It loads the appropriate file and an object of the main class
-     * (that should have the same name as the file)
+     * (that should have the same name as the file). A custom URi can be provided,
+     * but if it's not, 
      *
      * Unless it's a AJAX request and the ajax() method is provided, based on 
      * the request type (POST or GET), it will try to fire get_request() or post_request()
@@ -235,8 +252,10 @@ class TOCore {
      * Then it tries to invoke the appropriate method for the request
      * (ajax, javascript, css) or the main() method that should be in all the
      * class files ment for display.
+     * 
+     * @param string $uri the custom uri to load
      */
-    public static function main() {
+    public static function main($uri = null) {
 
         // turn on output buffering so nothing is isplayed unless everything is OK
         ob_start();
@@ -245,8 +264,11 @@ class TOCore {
         $queryArray = array();
 
         static::$file = "";
-        if ('' != TGlobal::server('REDIRECT_QUERY_STRING')) {
-            // We are here probably by a redirect, so load the page
+        if (!is_null($uri)){
+            // this is a custom request
+            static::$file = self::load($uri);
+        } elseif ('' != TGlobal::server('REDIRECT_QUERY_STRING')) {
+            // We are here probably by a redirect and the server fed us something like "?page=<<something here>>" (the default Trio Core suggestion), so load the page
             parse_str(TGlobal::server('REDIRECT_QUERY_STRING'), $queryArray);
             $page = $queryArray['page'];
             static::$file = self::load($page);
@@ -264,8 +286,9 @@ class TOCore {
             self::parse(new static::$main_class(static::$params));
             
         } else {
-            // The class is not declared (corectly)
-            throw new TOCoreException(static::$file,  TOCoreException::NO_CLASS);
+            // The class is not declared
+            if (static::$throw_class_exception)
+                throw new TOCoreException(static::$file,  TOCoreException::NO_CLASS);
         }
 
         ob_end_flush();
@@ -273,16 +296,24 @@ class TOCore {
 
 }
 
+/**
+ * Exceptions related to TrioCore file and class loading
+ */
 class TOCoreException extends Exception{
-    const NO_CLASS = 1;
-    const NO_MAIN = 2;
+    const NO_CLASS = 1; //001
+    const NO_MAIN = 2;  //010
+    const NO_FILE = 4;  //100
     public $request_file = '';
     
-    public function __construct($file, $code, $previous) {
+    public function __construct($file = '', $code = 0, $previous = null) {
         switch($code){
+            case self::NO_FILE:
+                $message = 'No file could be loaded.
+                    Please create a index.php file in the root directory of your site ('.SITE_ROOT.')';
+                break;
             case self::NO_CLASS:
                 $message = 'Can\'t find the main class.
-                    Please create a ' . $file . ' class in ' . $file . '.php</p>';
+                    Please create a ' . $file . ' class in ' . $file . '.php';
                 break;
             case self::NO_MAIN:
                 $message = 'There is no method main() in the ' . $file . '.php class file.
