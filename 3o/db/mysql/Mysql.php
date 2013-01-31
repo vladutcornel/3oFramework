@@ -1,7 +1,36 @@
 <?php
+
+namespace trio\db;
+
+use TUtil;
+use mysqli_result;
+use DomainException;
+require_once \TRIO_DIR.'/framework.php';
+
 /**
- * Helper class for MySQL 
- *
+ * MySQL driver based on mysqli.
+ * This driver is designed to be compatible with ezsql library 
+ * (that doesn't use mysqli) while also providing extra functionality (like caching)
+ * EZ SQL Compatibility methods
+     * Implemented
+     * $db->get_results -- get multiple row result set from the database (or previously cached results)
+     * $db->get_row -- get one row from the database (or previously cached results)
+     * $db->get_col -- get one column from query (or previously cached results) based on column offset
+     * $db->get_var -- get one variable, from one row, from the database (or previously cached results)
+     * $db->query -- send a query to the database (and if any results, cache them)
+     * $db->get_col_info -- get information about one or all columns such as column name or type
+     * $db->escape -- Format a string correctly to stop accidental mal formed queries under all PHP conditions
+ * Not Implemented EZ SQL methods and reasons
+     * $db->debug -- print last sql query and returned results (if any)
+        * Why? TrioMysql usses a completely different aproach to debugging
+     * $db->vardump -- print the contents and structure of any variable
+        * Why? use PHP's var_dump and something like Xdebug
+     * $db->select -- select a new database to work with 
+        * Why? Trio MySQL's setDB method
+     * $db->hide_errors -- turn ezSQL error output to browser off
+     * $db->show_errors -- turn ezSQL error output to browser on
+        * Why? TrioMysql doesn't generate errors, just exceptions that 
+        * you should catch (Bad things may happen if you don't)
  * @author Cornel Borina <cornel@scoalaweb.com>
  * @package 3oLibrary
  * @subpackage Database
@@ -13,7 +42,7 @@ define('ARRAY_A','ARRAY_A',true);
 define('ARRAY_N','ARRAY_N',true);
 if(!defined('TMYSQL_CACHE_INTERVAL'))
     define ('TMYSQL_CACHE_INTERVAL', false, true);
-class TMysql {
+class Mysql {
     
     /**
      *
@@ -116,7 +145,7 @@ class TMysql {
      * @param type $name
      */
     public function __get($name) {
-        switch (strtolower(trim($name)))
+        switch (\strtolower(\trim($name)))
         {
             case 'insert_id':
             case 'inserted_id':
@@ -144,7 +173,7 @@ class TMysql {
 
             // calculate the distance between the input word,
             // and the current word
-            $lev = levenshtein($name, $word);
+            $lev = \levenshtein($name, $word);
 
             // if this distance is less than the next found shortest
             // distance, OR if a next shortest word has not yet been found
@@ -156,7 +185,7 @@ class TMysql {
         }
         
         // throw an exception because the property was not found
-        throw new UnexpectedValueException ("Unrecognized Property Name (".__CLASS__."::{$name}). Did you meen {$closest}?");
+        throw new \UnexpectedValueException ("Unrecognized Property Name (".__CLASS__."::{$name}). Did you meen {$closest}?");
     }
     
     /**
@@ -173,12 +202,12 @@ class TMysql {
         $this->setPassword($password, false);
         $this->setHost($host, false);
         
-        if ($this->mysqli instanceof mysqli)
+        if ($this->mysqli instanceof \mysqli)
         {
             $this->mysqli->close();
         }
         
-        $this->mysqli = new mysqli($host, $user, $password, $db);
+        $this->mysqli = new \mysqli($host, $user, $password, $db);
     }
     
     /**
@@ -246,7 +275,7 @@ class TMysql {
      */
     public function query($query, $cache = TMYSQL_CACHE_INTERVAL) {
         $query = $this->minimize_query($query);
-        if (preg_match('/SELECT|SHOW|DESCRIBE|EXPLAIN/i', $query))
+        if (\preg_match('/^\s*(SELECT|SHOW|DESCRIBE|EXPLAIN)/i', $query))
         {
             // this query expects results
             return $this->run_select($query, $cache);
@@ -259,7 +288,7 @@ class TMysql {
     
     private function minimize_query($query)
     {
-        return trim (str_replace(array("\n", "\r"), ' ', $query));
+        return \trim (\str_replace(array("\n", "\r"), ' ', $query));
     }
     
     /**
@@ -276,10 +305,10 @@ class TMysql {
         }
         
         // try to fetch data from cache file
-        $cache_file = $this->cache_dir.'/'.md5($query).'.json';
-        if (count ($this->query_queue) == 0 && $cache != false)
+        $cache_file = $this->cache_dir.'/'.\md5($query).'.json';
+        if (\count ($this->query_queue) == 0 && $cache != false)
         {
-            $cache_data = Util::readSerializedCache($cache_file);
+            $cache_data = TUtil::readSerializedCache($cache_file);
             if ($cache_data !== false)
             {
                 return $cache_data;
@@ -302,7 +331,7 @@ class TMysql {
         $this->addQuery($query);
         if (!$this->last_result instanceof mysqli_result)
         {
-            throw new Exception('Invalid Query:'.$this->mysqli->error.' Query:'.$query);
+            throw new \Exception('Invalid Query:'.$this->mysqli->error.' Query:'.$query);
         }
         
         // populate results meta-data
@@ -311,7 +340,7 @@ class TMysql {
         // save cache
         if (false != $cache)
         {
-            Util::saveSerializedCache($results, $cache_file, $cache);
+            TUtil::saveSerializedCache($results, $cache_file, $cache);
         }
         
         // save last query
@@ -360,7 +389,7 @@ class TMysql {
             return;
         
         // run query in mysql
-        $this->mysqli->multi_query(implode (';', $this->query_queue));
+        $this->mysqli->multi_query(\implode (';', $this->query_queue));
         
         $this->query_count+= count($this->query_queue);
         $this->addQuery($this->query_queue);
@@ -368,7 +397,7 @@ class TMysql {
         // free mysqli results (for some reason, we have to do that...)
         do{
             $this->mysqli->store_result();
-        }while($this->mysqli->next_result());
+        }while($this->mysqli->more_results() && $this->mysqli->next_result());
         
         // populate object properties
         $this->affected_rows = $this->mysqli->affected_rows;
@@ -401,7 +430,7 @@ class TMysql {
     protected function addQuery($query){
         if (!$this->development_mode) return;
         $query = array($query);
-        $this->query_log = array_merge($this->query_log, $query);
+        $this->query_log = \array_merge($this->query_log, $query);
     }
     
     public function getLog()
@@ -409,29 +438,11 @@ class TMysql {
         return $this->query_log;
     }
     
-    /* EZ SQL Compatibility methods
-     * Implemented
-     * $db->get_results -- get multiple row result set from the database (or previously cached results)
-     * $db->get_row -- get one row from the database (or previously cached results)
-     * $db->get_col -- get one column from query (or previously cached results) based on column offset
-     * $db->get_var -- get one variable, from one row, from the database (or previously cached results)
-     * $db->query -- send a query to the database (and if any results, cache them)
-     * $db->get_col_info -- get information about one or all columns such as column name or type
-     * $db->escape -- Format a string correctly to stop accidental mal formed queries under all PHP conditions
-     * 
-     * Not Implemented
-     * $db->debug -- print last sql query and returned results (if any)
-     * $db->vardump -- print the contents and structure of any variable
-     * $db->select -- select a new database to work with - TMySQL uses setDB
-     * $db->hide_errors -- turn ezSQL error output to browser off
-     * $db->show_errors -- turn ezSQL error output to browser on
-     */
-    
     /**
      * Get the results of a query (or the last executed result-query)
-     * @param type $query
-     * @param type $cache
-     * @return type
+     * @param string $query
+     * @param mixed $cache
+     * @return mixed
      */
     public function get_results($query = '', $format = OBJECT, $cache = TMYSQL_CACHE_INTERVAL)
     {
@@ -468,11 +479,11 @@ class TMysql {
     
     /**
      * Get a row from the result
-     * @param type $query
-     * @param type $offset
-     * @param type $cache
-     * @return type
-     * @throws Exception
+     * @param string $query
+     * @param int $offset
+     * @param mixed $cache
+     * @return Object[]
+     * @throws DomainException
      */
     public function get_row($query = '', $offset = 0, $cache = TMYSQL_CACHE_INTERVAL) 
     {
@@ -481,7 +492,7 @@ class TMysql {
             $query = $this->last_query;
         }
         
-        if (func_num_args() == 2 && !is_numeric(func_get_arg(1)))
+        if (\func_num_args() == 2 && !\is_numeric(\func_get_arg(1)))
         {
             $offset = 0;
             $cache = func_get_arg(1);
@@ -511,27 +522,27 @@ class TMysql {
             $query = $this->last_query;
         }
         
-        if (func_num_args() == 2 && !is_numeric(func_get_arg(1)))
+        if (\func_num_args() == 2 && !\is_numeric(\func_get_arg(1)))
         {
             $offset = 0;
-            $cache = func_get_arg(1);
+            $cache = \func_get_arg(1);
         }
         
         // try to read cache
-        $cache_file = $this->cache_dir.'/column-'.$offset.'-'.md5($this->minimize_query($query)).'.json';
-        if (($data = Util::readSerializedCache($cache_file)) !== false)
+        $cache_file = $this->cache_dir.'/column-'.$offset.'-'.  \md5($this->minimize_query($query)).'.json';
+        if (($data = TUtil::readSerializedCache($cache_file)) !== false)
         {
             return $data;
         }
         
         // determine the new array
         $this->get_results($query, OBJECT, TMYSQL_CACHE_INTERVAL);
-        if (is_numeric($offset) && ($this->last_result->num_rows < $offset || $offset < 0))
+        if (\is_numeric($offset) && ($this->last_result->num_rows < $offset || $offset < 0))
         {
             throw new DomainException ('Invalid Offset');
         }
         
-        if (!is_numeric($offset))
+        if (!\is_numeric($offset))
         {
             // search the result fields for the column name
             $field_found = false;
@@ -567,7 +578,7 @@ class TMysql {
         if (false != $cache)
         {
             // save data to cache
-            Util::saveSerializedCache($data, $cache_file, $cache);
+            TUtil::saveSerializedCache($data, $cache_file, $cache);
         }
         
         return $data;
@@ -594,7 +605,7 @@ class TMysql {
         }
         
         
-        if (func_num_args() == 2 && !is_numeric(func_get_arg(1)))
+        if (\func_num_args() == 2 && !\is_numeric(\func_get_arg(1)))
         {
             $row = 0;
             $cache = func_get_arg(1);
@@ -607,8 +618,8 @@ class TMysql {
         }
         
         // try to read cache
-        $cache_file = $this->cache_dir.'/var-'.$row.'-'.$column.'-'.md5($this->minimize_query($query)).'.json';
-        if (($data = Util::readSerializedCache($cache_file)) !== false)
+        $cache_file = $this->cache_dir.'/var-'.$row.'-'.$column.'-'.  \md5($this->minimize_query($query)).'.json';
+        if (($data = TUtil::readSerializedCache($cache_file)) !== false)
         {
             return $data;
         }
@@ -633,7 +644,7 @@ class TMysql {
         if (false != $cache)
         {
             // save data to cache
-            Util::saveSerializedCache($data, $cache_file, $cache);
+            TUtil::saveSerializedCache($data, $cache_file, $cache);
         }
         
         return $data;
@@ -658,14 +669,14 @@ class TMysql {
         
         // we have a query
         $query = $this->minimize_query($query);
-        if (preg_match('/^(SELECT|SHOW|DESCRIBE|EXPLAIN)\s+/i', $query))
+        if (\preg_match('/^(SELECT|SHOW|DESCRIBE|EXPLAIN)\s+/i', $query))
         {
             $results = $this->mysqli->query($query);
             $this->query_count++;
             $this->addQuery($query);
             if (!$results instanceof mysqli_result)
             {
-                throw new Exception('Invalid Query');
+                throw new \UnexpectedValueException('Invalid Query');
             }
             $fields = $results->fetch_fields();
             $results->free();
@@ -683,7 +694,7 @@ class TMysql {
      */
     public function get_table_info($table)
     {
-        $table = str_replace('`', '', $table);
+        $table = \str_replace('`', '', $table);
         $query = "SELECT * FROM `{$table}` LIMIT 1";
         return $this->get_col_info($query);
     }
@@ -694,6 +705,6 @@ class TMysql {
      */
     function escape ($string)
     {
-        return $this->mysqli->real_escape_string(stripslashes($string));
+        return $this->mysqli->real_escape_string(\stripslashes($string));
     }
 }

@@ -1,22 +1,26 @@
 <?php
 
-require_once TRIO_DIR.'/whereis.php';
+namespace trio\db;
+require_once \TRIO_DIR.'/framework.php';
+
 /**
  * Template for a database table model
  * @author Cornel Borina <cornel@scoalaweb.com>
- * @package 3oScript
+ * @package 3oLibrary
+ * @subpackage Database
  */
-class DBModel extends TObject {
+class Model extends \TObject {
     /**
-     * Database object
-     * @var TMysql The database
+     * Database object.
+     * @var trio\db\Mysql The database
+     * @todo Change this into a generic driver
      */
     public static $db;
 
     /**
      * The name of the corespunding table in the database
      */
-    private static $table_name;
+    protected static $table_name;
 
     /**
      * Special designed classes for some tables from the database
@@ -33,8 +37,11 @@ class DBModel extends TObject {
     /**
      * @staticvar array The table fields. Should be set for every child class
      */
-    private static $fields = array();
+    protected static $fields = array();
     
+    protected $db_data = array();
+
+
     /**
      * Track if any property was changed
      * @var boolean
@@ -46,11 +53,11 @@ class DBModel extends TObject {
      */
     public function __construct($init = array()){
 
-        if (!is_array($init) && !is_object($init)) {
-            parse_str($init,$init);
+        if (!\is_array($init) && !\is_object($init)) {
+            \parse_str($init,$init);
         }
 
-        if (is_array($init) || is_object($init))
+        if (\is_array($init) || \is_object($init))
             $this->multiSet($init);
     }
 
@@ -60,9 +67,9 @@ class DBModel extends TObject {
      * @return mixed
      */
     public function getDBVar($var_name){
-        $var_name = strtolower($var_name);
-        if(isset($this->$var_name))
-            return $this->$var_name;
+        $var_name = \strtolower($var_name);
+        if(isset($this->db_data[$var_name]))
+            return $this->db_data[$var_name];
         return FALSE;
     }
 
@@ -73,11 +80,13 @@ class DBModel extends TObject {
      * @return \DBModel $this for method chaining
      */
     public function setDBVar($var_name, $new_value){
-            $var_name = strtolower($var_name);
-            $original = $this->$var_name;
-            $this->$var_name = $new_value;
+            $var_name = \strtolower($var_name);
+            $original = isset($this->db_data[$var_name])?
+                $this->db_data[$var_name] :
+                '';
+            $this->db_data[$var_name] = $new_value;
             
-            if ($original != $this->$var_name)
+            if ($original != $this->db_data[$var_name])
             {
                 $this->properties_changed = true;
             }
@@ -92,29 +101,6 @@ class DBModel extends TObject {
     }
 
     /**
-     * Add support for un-implemented setters and getters
-     */
-    public function __call($function, $args){
-        // test a getter
-        $is_getter = preg_match("/^get(?P<varname>[a-z_]+)$/i",$function, $matches);
-        if ($is_getter){
-            return $this->getDBVar(strtolower($matches['varname']));
-        }
-
-        // setter
-        $is_setter = preg_match("/^set(?P<varname>[a-z_]+)$/i",$function, $matches);
-        if ($is_setter){
-            return $this->setDBVar(strtolower($matches['varname']), $args[0]);
-        }
-
-        // boolean getter
-        $is_bool_getter = preg_match("/^is(?P<varname>[a-z_]+)$/i",$function, $matches);
-        if ($is_bool_getter){
-            return (bool) $this->getDBVar(strtolower($matches['varname']));
-        }
-    }
-
-    /**
      * Bypas the TObject default mechanism of throwing an exception when no setter was defined
      * @param string $name
      * @param string $value
@@ -122,7 +108,7 @@ class DBModel extends TObject {
     public function __set($name, $value) {
         try{
             parent::__set($name, $value);
-        } catch(LogicException $e)
+        } catch(\LogicException $e)
         {
             $this->setDBVar($name, $value);
         }
@@ -137,7 +123,7 @@ class DBModel extends TObject {
     public function __get($name) {
         try{
             return parent::__get($name);
-        } catch(LogicException $e)
+        } catch(\LogicException $e)
         {
             return $this->getDBVar($name);
         }
@@ -151,9 +137,9 @@ class DBModel extends TObject {
      */
     public function multiSet($fields)
     {
-        if (!is_array($fields) && !is_object($fields))
+        if (!\TUtil::isIterable($fields))
         {
-            throw new BadMethodCallException('DBModel::multiSet only accepts associative arrays or objects');
+            throw new \BadMethodCallException('DBModel::multiSet only accepts associative arrays or objects');
         }
         
         foreach ($fields as $key => $value) {
@@ -168,7 +154,7 @@ class DBModel extends TObject {
      */
     public static function hasField($field)
     {
-        return in_array(trim($field),static::$fields);
+        return \in_array(\trim($field),static::$fields);
     }
 
     /**
@@ -188,15 +174,15 @@ class DBModel extends TObject {
         if (isset(self::$special_classes[$table_name]))
             return self::$special_classes[$table_name];
 
-        $temp = preg_replace("/[^a-z0-9]+/"," ",$table_name); // e.g. "margin left"
-        if (is_numeric($temp[0]))
+        $temp = \preg_replace("/[^a-z0-9]+/"," ",$table_name); // e.g. "margin left"
+        if (\is_numeric($temp[0]))
         {
             $temp = "C$temp"; // Add a C before database tables that start with a digit
         }
-        $temp = ucwords($temp); // eg. "Margin Left"
-        $table_model =  str_replace(" ","",$temp);// eg. "setMarginLeft"
+        $temp = \ucwords($temp); // eg. "Margin Left"
+        $table_model =  \str_replace(" ","",$temp);// eg. "setMarginLeft"
 
-        if (class_exists($table_model."Model")){
+        if (\class_exists($table_model."Model")){
             return $table_model."Model";
         }
 
@@ -213,7 +199,7 @@ class DBModel extends TObject {
         foreach(static::$fields as $field){
             if (($value = $this->getDBVar($field)) !== FALSE){
                 $save_fields[] = $field;
-                $save_values[] = getDB()->escape($value);
+                $save_values[] = static::$db->escape($value);
             }
         }
         if ($insert_contition){
@@ -234,13 +220,13 @@ class DBModel extends TObject {
      */
     private function insert($save_fields,$save_values){
         $table_name = static::$table_name;
-        $query = "INSERT INTO `$table_name` (`".implode("`,`",$save_fields)."`) VALUES ('".implode("','", $save_values)."')";
+        $query = "INSERT INTO `$table_name` (`".\implode("`,`",$save_fields)."`) VALUES ('".\implode("','", $save_values)."')";
+        
+        static::$db->query($query);
 
-        self::$db->query($query);
-
-        if (in_array('id', static::getFields()))
+        if (\in_array('id', static::getFields()))
         {
-            $this->setId(self::$db->insert_id);
+            $this->setId(static::$db->insert_id);
         }
     }
 
@@ -263,7 +249,7 @@ class DBModel extends TObject {
 
         $query.=" WHERE id = ".$this->getId();
 
-        self::$db->query($query);
+        static::$db->query($query);
     }
 
     /**
@@ -285,7 +271,7 @@ class DBModel extends TObject {
             return $from_xml;
         }
         $array = static::generic_prepare($pk_fields, $key, $cache);
-        if (count ($array) > 0)
+        if (\count ($array) > 0)
             return $array[0];
         return NULL;
     }
@@ -300,38 +286,38 @@ class DBModel extends TObject {
         $sql = "SELECT * FROM `$table_name`";
         $conditions = array();
         foreach($params as $key=>$value){
-            if (! in_array($key, static::$fields)) continue;
+            if (! \in_array($key, static::$fields)) continue;
             switch ($type){
                 case 'reg':
-                    $conditions[]= " `{$key}` REGEX '". getDB()->escape($value) ."' ";
+                    $conditions[]= " `{$key}` REGEX '". static::$db->escape($value) ."' ";
                     break;
                 case 'contains':
-                    $conditions[]= " `{$key}` LIKE '%". getDB()->escape($value) ."%' ";
+                    $conditions[]= " `{$key}` LIKE '%". static::$db->escape($value) ."%' ";
                     break;
                 case 'start':
-                    $conditions[]= " `{$key}` LIKE '". getDB()->escape($value) ."%' ";
+                    $conditions[]= " `{$key}` LIKE '". static::$db->escape($value) ."%' ";
                     break;
                 case 'end':
-                    $conditions[]= " `{$key}` LIKE '%". getDB()->escape($value) ."' ";
+                    $conditions[]= " `{$key}` LIKE '%". static::$db->escape($value) ."' ";
                     break;
                 case 'strict':
-                    $conditions[]= " `{$key}` = '". getDB()->escape($value) ."' ";
+                    $conditions[]= " `{$key}` = '". static::$db->escape($value) ."' ";
                     break;
                 case '>':
                 case '<':
                 case '>=':
                 case '<=':
-                    $conditions[]= " `{$key}` $type '". getDB()->escape($value) ."' ";
+                    $conditions[]= " `{$key}` $type '". static::$db->escape($value) ."' ";
                     break;
                 case 'in':
-                    if(!is_array($value)){
+                    if(!\is_array($value)){
                         $value = preg_split("/\s*,\s*/",$value);
                     }
                     foreach($value as &$elem){
-                        $elem = getDB()->escape($elem);
+                        $elem = static::$db->escape($elem);
                     }
 
-                    $conditions[]= " `{$key}` IN( '".implode("','",$value)."' )";
+                    $conditions[]= " `{$key}` IN( '".\implode("','",$value)."' )";
                     break;
                 case 'direct':
                 default:
@@ -340,7 +326,7 @@ class DBModel extends TObject {
         }
 
         if (count($conditions > 0))
-            $sql.="WHERE ". implode(" {$op} ",$conditions);
+            $sql.="WHERE ". \implode(" {$op} ",$conditions);
         return static::loadByQuery($sql);
     }
 
@@ -354,15 +340,15 @@ class DBModel extends TObject {
         //var_dump(func_get_args());
         //debug_print_backtrace();
 
-        $call_class = get_called_class();
+        $call_class = \get_called_class();
 
         $table_name = static::$table_name;
 
         $numeric_keys = array();
         $all_keys = array();
 
-        if (!is_array($keys)){
-            $keys = array_slice(func_get_args(),1);
+        if (!\is_array($keys)){
+            $keys = \array_slice(\func_get_args(),1);
         }
         $preloaded = array();
         foreach($keys as $key){
@@ -378,8 +364,8 @@ class DBModel extends TObject {
                 //echo "<p>Model is in xml</p>";
                 continue;
             }
-            if (is_numeric($key)) $numeric_keys[]= $key;
-            $all_keys[]= getDB()->escape($key);
+            if (\is_numeric($key)) $numeric_keys[]= $key;
+            $all_keys[]= static::$db->escape($key);
         }
         $loaded_now = array();
 
@@ -392,21 +378,21 @@ class DBModel extends TObject {
             foreach ($pk_fields as $field=>$numeric){
                 $use_field = $numeric;
                 $is_numeric = false;
-                if (is_bool($numeric)){
+                if (\is_bool($numeric)){
                     $use_field = $field;
                     $is_numeric = $numeric;
                 }
 
                 if ($is_numeric){
-                    $conditions[] = " `$use_field` IN('".implode("','", $numeric_keys)."') ";
+                    $conditions[] = " `$use_field` IN('".\implode("','", $numeric_keys)."') ";
                 } else {
-                    $conditions[] = " `$use_field` IN('".implode("','", $keys)."') ";
+                    $conditions[] = " `$use_field` IN('".\implode("','", $keys)."') ";
                 }
 
             }
 
             if (count($conditions) > 0){
-                $query.=" WHERE ".implode(" OR ", $conditions);
+                $query.=" WHERE ".\implode(" OR ", $conditions);
             }
 
             //var_dump($query);
@@ -414,7 +400,7 @@ class DBModel extends TObject {
             $loaded_now = static::loadByQuery($query,$cache);
         }
 
-        return array_merge($preloaded, $loaded_now);
+        return \array_merge($preloaded, $loaded_now);
     }
 
     /**
@@ -427,7 +413,7 @@ class DBModel extends TObject {
 
         $call_class = static::getClassForTable(static::$table_name);
 
-        $results = self::$db->get_results($query, ARRAY_A);
+        $results = static::$db->get_results($query, ARRAY_A);
         $elements = array();
 
         if ($results)
@@ -460,14 +446,14 @@ class DBModel extends TObject {
 
         $fields = static::$fields;
 
-        $file = static::$cache_dir."/".static::$table_name."/".implode('-',$keys).".json";
+        $file = static::$cache_dir."/".static::$table_name."/".\implode('-',$keys).".json";
 
         $array = array();
         foreach ($fields as $field)
         {
-            $array[$field] = utf8_encode( $this->getDBVar($field));
+            $array[$field] = \utf8_encode( $this->getDBVar($field));
         }
-        return file_put_contents($file, json_encode((object) $array));
+        return \file_put_contents($file, \json_encode((object) $array));
 
     }
 
@@ -481,25 +467,25 @@ class DBModel extends TObject {
 
         $fields = static::$fields;
 
-        $file = static::$cache_dir."/".static::$table_name."/".implode('-',$keys).".json";
+        $file = static::$cache_dir."/".static::$table_name."/".\implode('-',$keys).".json";
 
-        if (! file_exists($file) || !is_readable($file)) return false;
+        if (! \file_exists($file) || !\is_readable($file)) return false;
 
         $model = static::getClassForTable(static::$table_name);
 
         $object = new $model;
 
-        $contents = file_get_contents($file);
+        $contents = \file_get_contents($file);
         if ($contents === false) return false;
 
-        $json = json_decode($contents);
+        $json = \json_decode($contents);
         if ($json === NULL) return false;
         //if (!is_object($json))            return FALSE;
         //var_dump($json);
         foreach ($json as $key=>$value)
         {
             $field_name = $key;
-            $field_value = utf8_decode($value);
+            $field_value = \utf8_decode($value);
             $object->setDBVar($field_name, $field_value);
         }
 
