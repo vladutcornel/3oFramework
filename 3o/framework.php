@@ -8,55 +8,61 @@
 if (!defined("TRIO_DIR"))  
 {  
     define("TRIO_DIR", __DIR__);  
-} 
-// get the whereis class
-include_once TRIO_DIR.'/whereis.php';
-
+}
 // get the core classes
 require_once TRIO_DIR . '/framework-core.php';
 
 // register other framework classes
 Whereis::register(array (
-  'CSSAtribute' => TRIO_DIR.'/css/CSSAtribute.php',
-  'CSSColor' => TRIO_DIR.'/css/CSSColor.php',
-  'CSSGradient' => TRIO_DIR.'/css/CSSGradient.php',
-  'CSSUnit' => TRIO_DIR.'/css/CSSUnit.php',
-  'Style' => TRIO_DIR.'/css/Style.php',
-  'DBModel' => TRIO_DIR.'/db/DBModel.php',
-  'TMysql' => TRIO_DIR.'/db/mysql/TMysql.php',
-  'UserInputException' => TRIO_DIR.'/exceptions/UserInputException.php',
-  'GenerateWhereis' => TRIO_DIR.'/GenerateWhereis.php',
-  'Element' => TRIO_DIR.'/html/Element.php',
-  'DefinitionList' => TRIO_DIR.'/html/elements/DefinitionList.php',
-  'DescriptionList' => TRIO_DIR.'/html/elements/DescriptionList.php',
-  'HtmlBlock' => TRIO_DIR.'/html/elements/HtmlBlock.php',
-  'HtmlHeading' => TRIO_DIR.'/html/elements/HtmlHeading.php',
-  'HtmlImage' => TRIO_DIR.'/html/elements/HtmlImage.php',
-  'HtmlInline' => TRIO_DIR.'/html/elements/HtmlInline.php',
-  'HtmlList' => TRIO_DIR.'/html/elements/HtmlList.php',
-  'Link' => TRIO_DIR.'/html/elements/Link.php',
-  'Paragraph' => TRIO_DIR.'/html/elements/Paragraph.php',
-  'ScriptHead' => TRIO_DIR.'/html/elements/ScriptHead.php',
-  'Table' => TRIO_DIR.'/html/elements/Table.php',
-  'Button' => TRIO_DIR.'/html/forms/Button.php',
-  'CheckableFormElements' => TRIO_DIR.'/html/forms/CheckableFormElements.php',
-  'Checkbox' => TRIO_DIR.'/html/forms/Checkbox.php',
-  'CheckboxGroup' => TRIO_DIR.'/html/forms/CheckboxGroup.php',
-  'Form' => TRIO_DIR.'/html/forms/Form.php',
-  'FormElement' => TRIO_DIR.'/html/forms/FormElement.php',
-  'FormLabel' => TRIO_DIR.'/html/forms/FormLabel.php',
-  'Hidden' => TRIO_DIR.'/html/forms/Hidden.php',
-  'HtmlDropdown' => TRIO_DIR.'/html/forms/HtmlDropdown.php',
-  'HtmlRadio' => TRIO_DIR.'/html/forms/HtmlRadio.php',
-  'Input' => TRIO_DIR.'/html/forms/Input.php',
-  'PasswordField' => TRIO_DIR.'/html/forms/PasswordField.php',
-  'RadioGroup' => TRIO_DIR.'/html/forms/RadioGroup.php',
-  'Textarea' => TRIO_DIR.'/html/forms/Textarea.php',
-  'TextField' => TRIO_DIR.'/html/forms/TextField.php',
-  'ToggleField' => TRIO_DIR.'/html/forms/ToggleField.php',
-  'UploadForm' => TRIO_DIR.'/html/forms/UploadForm.php',
-  'HtmlElement' => TRIO_DIR.'/html/HtmlElement.php',
-  'TrioMail' => TRIO_DIR.'/utils/TrioMail.php',
-  'TrioMailSMTP' => TRIO_DIR.'/utils/TrioMailSMTP.php',
-  'TrioTimestamp' => TRIO_DIR.'/utils/TrioTimestamp.php',
+    // HTML namespace
+    // generic elements
+    'trio\html\Element' => TRIO_DIR.'/html/Element.php',
+    'trio\html\HtmlElement' => TRIO_DIR.'/html/HtmlElement.php',
+    // standard elements
+    'trio\html\Block' => TRIO_DIR.'/html/elements/Block.php',
+    'trio\html\Inline' => TRIO_DIR.'/html/elements/Inline.php',
+    'trio\html\Table' => TRIO_DIR.'/html/elements/Table.php',
+    'trio\html\Heading' => TRIO_DIR.'/html/elements/Heading.php',
+    'trio\html\Image' => TRIO_DIR.'/html/elements/Image.php',
+    'trio\html\HtmlList' => TRIO_DIR.'/html/elements/HtmlList.php',
+    'trio\html\DefinitionList' => TRIO_DIR.'/html/elements/DefinitionList.php',
+    'trio\html\DescriptionList' => TRIO_DIR.'/html/elements/DescriptionList.php',
+    'trio\html\Link' => TRIO_DIR.'/html/elements/Link.php',
+    'trio\html\Paragraph' => TRIO_DIR.'/html/elements/Paragraph.php',
+    // form elements
+    'trio\html\Button' => TRIO_DIR.'/html/forms/Button.php',
+    'trio\html\CheckableFormElements' => TRIO_DIR.'/html/forms/CheckableFormElements.php',
+    'trio\html\Checkbox' => TRIO_DIR.'/html/forms/Checkbox.php',
+    'trio\html\CheckboxGroup' => TRIO_DIR.'/html/forms/CheckboxGroup.php',
+    'trio\html\Form' => TRIO_DIR.'/html/forms/Form.php',
+    'trio\html\FormElement' => TRIO_DIR.'/html/forms/FormElement.php',
+    'trio\html\Label' => TRIO_DIR.'/html/forms/Label.php',
+    'trio\html\Hidden' => TRIO_DIR.'/html/forms/Hidden.php',
+    'trio\html\Dropdown' => TRIO_DIR.'/html/forms/Dropdown.php',
+    'trio\html\Radio' => TRIO_DIR.'/html/forms/Radio.php',
+    'trio\html\Input' => TRIO_DIR.'/html/forms/Input.php',
+    'trio\html\Password' => TRIO_DIR.'/html/forms/Password.php',
+    'trio\html\RadioGroup' => TRIO_DIR.'/html/forms/RadioGroup.php',
+    'trio\html\Textarea' => TRIO_DIR.'/html/forms/Textarea.php',
+    'trio\html\TextField' => TRIO_DIR.'/html/forms/TextField.php',
+    'trio\html\ToggleField' => TRIO_DIR.'/html/forms/ToggleField.php',
+    'trio\html\UploadForm' => TRIO_DIR.'/html/forms/UploadForm.php',
+    
+    // CSS namespace
+    'trio\css\Style' => TRIO_DIR.'/css/Style.php',
+    'trio\css\Unit' => TRIO_DIR.'/css/Unit.php',
+    
+    // Database
+    'trio\db\Model' => TRIO_DIR.'/db/Model.php',
+    'trio\db\Mysql' => TRIO_DIR.'/db/mysql/Mysql.php',
+    
+    // email
+    'trio\mail\Mailer' => TRIO_DIR.'/utils/TrioMailer/class.phpmailer.php',
+    'trio\mail\SMTP' => TRIO_DIR.'/utils/TrioMailer/class.smtp.php',
+    
+    // other utilities
+    'trio\Timestamp' => TRIO_DIR.'/utils/Timestamp.php',
+    
+    // exceptions
+    'UserInputException' => TRIO_DIR.'/exceptions/UserInputException.php',
 ));
