@@ -1,14 +1,16 @@
 <?php
-
-require_once TRIO_DIR.'/whereis.php';
+namespace trio\html;
+require_once \TRIO_DIR.'/framework.php';
 
 /**
- * Utility for generic HTML inline elements
+ * Utility for generic HTML inline elements.
+ * Inline elements usually don't require sub-elements except text and can be 
+ * wrapped in an anchor (link) tag
  * @author Cornel Borina <cornel@scoalaweb.com>
  * @package 3oLibrary
  * @subpackage html
  */
-class HtmlInline extends HtmlElement {
+class Inline extends HtmlElement {
     private $href = null;
     public function __construct($tag = 'span', $id = '') {
         parent::__construct($tag, $id);
@@ -31,14 +33,14 @@ class HtmlInline extends HtmlElement {
     
     /**
      * Renders the element. If there is a href, an link tag will suround this element
-     * @param type $echo
-     * @return type
+     * @param boolean $echo
+     * @return string
      */
     public function toHtml($echo = true) {
-        if (is_null($this->href) || $this->getTag() == 'a')
+        if (\is_null($this->href) || $this->getTag() == 'a')
             return parent::toHtml($echo);
         
-        $out = '<a href="'.htmlentities($this->href).'">';
+        $out = '<a href="'.\htmlentities($this->href).'">';
         $out.= parent::toHtml(false);
         $out.= '</a>';
         

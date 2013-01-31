@@ -1,6 +1,7 @@
 <?php
 
-require_once TRIO_DIR.'/whereis.php';
+namespace trio\html;
+require_once \TRIO_DIR.'/framework.php';
 
 /**
  * A HTML Label element
@@ -9,7 +10,7 @@ require_once TRIO_DIR.'/whereis.php';
  * @package 3oLibrary
  * @subpackage HTML
  */
-class FormLabel extends HtmlElement {
+class Label extends HtmlElement {
     
     /**
      * @param string $text The text content of the label

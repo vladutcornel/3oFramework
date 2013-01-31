@@ -1,6 +1,7 @@
 <?php
-
-require_once TRIO_DIR.'/whereis.php';
+namespace trio\html;
+use trio\css\Unit as CSSUnit;
+require_once \TRIO_DIR.'/framework.php';
 
 /**
  * A web page image (<img>)
@@ -9,7 +10,7 @@ require_once TRIO_DIR.'/whereis.php';
  * @package 3oLibrary
  * @subpackage HTML
  */
-class HtmlImage extends HtmlElement{
+class Image extends Inline{
     /**
      * @param string $src
      * @param string $alt

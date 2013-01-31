@@ -1,5 +1,6 @@
 <?php
-require_once TRIO_DIR.'/whereis.php';
+namespace trio\html;
+require_once \TRIO_DIR.'/framework.php';
 /**
  * A different name for DescriptionList
  * @see DescriptionList

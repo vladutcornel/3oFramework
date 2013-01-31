@@ -1,6 +1,7 @@
 <?php
 
-require_once TRIO_DIR . '/whereis.php';
+namespace trio\html;
+require_once \TRIO_DIR.'/framework.php';
 
 /**
  * A HTML table.
@@ -30,27 +31,27 @@ class Table extends HtmlElement {
     private $numCols = 0;
 
     /**
-     * @var HtmlTableHead
+     * @var TableHead
      */
     private $thead;
 
     /**
-     * @var HtmlTableFooter
+     * @var TableFooter
      */
     private $tfoot;
 
     /**
-     * @var HtmlTableBody
+     * @var TableBody
      */
     private $tbody;
 
     /**
-     * @var HtmlTableRow[][]
+     * @var TableRow[][]
      */
     private $rows = array(self::HEAD => array(), self::FOOT => array(), self::BODY => array());
 
     /**
-     * @var HtmlTableCell[][]
+     * @var TableCell[][]
      */
     private $cells = array(self::HEAD => array(), self::FOOT => array(), self::BODY => array());
     private $caption;
@@ -58,11 +59,11 @@ class Table extends HtmlElement {
     public function __construct($caption = '', $id = '') {
         parent::__construct("table", $id);
 
-        $this->caption = new HtmlInline('caption', $this->getId() . '_caption');
+        $this->caption = new Inline('caption', $this->getId() . '_caption');
         $this->caption->setText($caption);
-        $this->thead = new HtmlTableHead($this->getId() . '_header');
-        $this->tfoot = new HtmlTableFooter($this->getId() . '_footer');
-        $this->tbody = new HtmlTableBody($this->getId() . '_body');
+        $this->thead = new TableHead($this->getId() . '_header');
+        $this->tfoot = new TableFooter($this->getId() . '_footer');
+        $this->tbody = new TableBody($this->getId() . '_body');
 
         $this->addChild($this->thead);
         $this->addChild($this->tbody);
@@ -75,7 +76,7 @@ class Table extends HtmlElement {
      * @param int $row >0
      * @param int $col >0
      * @param string $region Table::HEAD, Table::BODY or Table::FOOT
-     * @return HtmlTableCell
+     * @return TableCell
      */
     public function cell($row = 1, $col = 1, $region = Table::BODY) {
         if ($row > $this->numRows[$region]) {
@@ -94,7 +95,7 @@ class Table extends HtmlElement {
      * first since table headers are usually one row 
      * @param int $col >0
      * @param int $row >0
-     * @return HtmlTableCell
+     * @return TableCell
      */
     public function head_cell($col = 1,$row = 1) {
         return $this->cell($row, $col,Table::HEAD);
@@ -113,11 +114,11 @@ class Table extends HtmlElement {
 
         for ($i = 0; $i < $delta; $i++) {
             // create table row
-            $row = new HtmlTableRow($this->getId() . '_' . $region. '_row_' . $this->numRows[$region]);
+            $row = new TableRow($this->getId() . '_' . $region. '_row_' . $this->numRows[$region]);
 
             // create table cells for the row
             for ($col = 0; $col < $this->numCols; $col++) {
-                $cell = new HtmlTableCell($this,$region, $this->numRows[$region], $col, $cellTag, $this->getId() . '_cell_' . $this->numRows[$region] . 'x' . $col);
+                $cell = new TableCell($this,$region, $this->numRows[$region], $col, $cellTag, $this->getId() . '_cell_' . $this->numRows[$region] . 'x' . $col);
                 $this->cells[$region][$this->numRows[$region]][$col] = $cell;
                 $row->addChild($cell);
             }
@@ -154,7 +155,7 @@ class Table extends HtmlElement {
             $row = $this->rows[$region][$rownr];
             for ($col = 0; $col < $delta; $col++) {
                 $colnr = $this->numCols + $col;
-                $cell = new HtmlTableCell($this,$region, $rownr, $colnr, $cellTag, $this->getId() . '_cell_' . $rownr . 'x' . $colnr);
+                $cell = new TableCell($this,$region, $rownr, $colnr, $cellTag, $this->getId() . '_cell_' . $rownr . 'x' . $colnr);
                 $this->cells[$region][$rownr][$colnr] = $cell;
                 $row->addChild($cell);
             }
@@ -178,7 +179,7 @@ class Table extends HtmlElement {
 
     /**
      * Get the Table body element
-     * @return HtmlTableBody
+     * @return TableBody
      */
     public function getBody() {
         return $this->getRegionParent(Table::BODY);
@@ -194,7 +195,7 @@ class Table extends HtmlElement {
 
     /**
      * Get the table footer element
-     * @return HtmlTableFooter
+     * @return TableFooter
      */
     public function getFooter() {
         return $this->getRegionParent(Table::FOOT);
@@ -204,7 +205,7 @@ class Table extends HtmlElement {
      * Get the object for the specified row in the given table region
      * @param int $index
      * @param string $region
-     * @return HtmlTableRow
+     * @return TableRow
      */
     public function getRow($index, $region = self::BODY)
     {
@@ -271,7 +272,7 @@ class Table extends HtmlElement {
     public function cell_col_span($row, $col, $span, $region = self::BODY)
     {
         if ($span < 1)
-            throw new UnexpectedValueException('The span of a cell should be a number greater than 0');
+            throw new \UnexpectedValueException('The span of a cell should be a number greater than 0');
         if (!$this->cell($row, $col, $region)->canDisplay())
         {
             $this->cell($row, $col, $region)->setAttribute('colspan', $span);
@@ -321,7 +322,7 @@ class Table extends HtmlElement {
     }
 }
 
-class HtmlTableHead extends HtmlElement {
+class TableHead extends HtmlElement {
 
     public function __construct($id = '') {
         parent::__construct('thead', $id);
@@ -329,7 +330,7 @@ class HtmlTableHead extends HtmlElement {
 
 }
 
-class HtmlTableBody extends HtmlElement {
+class TableBody extends HtmlElement {
 
     public function __construct($id = '') {
         parent::__construct('tbody', $id);
@@ -337,7 +338,7 @@ class HtmlTableBody extends HtmlElement {
 
 }
 
-class HtmlTableFooter extends HtmlElement {
+class TableFooter extends HtmlElement {
 
     public function __construct($id = '') {
         parent::__construct('tfoot', $id);
@@ -345,7 +346,7 @@ class HtmlTableFooter extends HtmlElement {
 
 }
 
-class HtmlTableRow extends HtmlElement {
+class TableRow extends HtmlElement {
 
     public function __construct($id = '') {
         parent::__construct('tr', $id);
@@ -353,7 +354,7 @@ class HtmlTableRow extends HtmlElement {
 
 }
 
-class HtmlTableCell extends HtmlElement {
+class TableCell extends HtmlElement {
     /**
      *
      * @var Table
@@ -409,7 +410,7 @@ class HtmlTableCell extends HtmlElement {
     public function rowspan($rows)
     {
         if ($rows < 1)
-            throw new UnexpectedValueException('The span of a cell should be a number greater than 0');
+            throw new \UnexpectedValueException('The span of a cell should be a number greater than 0');
         $this->table->cell_row_span($this->row_index + 1, $this->col_index + 1, $rows, $this->region);
         return $this;
     }
@@ -417,7 +418,7 @@ class HtmlTableCell extends HtmlElement {
     public function colspan($cols)
     {
         if ($cols < 1)
-            throw new UnexpectedValueException('The span of a cell should be a number greater than 0');
+            throw new \UnexpectedValueException('The span of a cell should be a number greater than 0');
         $this->table->cell_col_span($this->row_index + 1, $this->col_index + 1, $cols, $this->region);
         return $this;
     }
@@ -428,7 +429,7 @@ class HtmlTableCell extends HtmlElement {
             return 1;
         }
         
-        return intval($this->getAttribute('rowspan'));
+        return \intval($this->getAttribute('rowspan'));
     }
 
     public function getColSpan(){
@@ -437,6 +438,6 @@ class HtmlTableCell extends HtmlElement {
             return 1;
         }
         
-        return intval($this->getAttribute('colspan'));
+        return \intval($this->getAttribute('colspan'));
     }
 }

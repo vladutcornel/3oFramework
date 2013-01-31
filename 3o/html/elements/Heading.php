@@ -1,5 +1,6 @@
 <?php
-require_once TRIO_DIR.'/whereis.php';
+namespace trio\html;
+require_once \TRIO_DIR.'/framework.php';
 
 /**
  * A HTML heading (wrapper for h1,h2,...h6 tags)
@@ -8,9 +9,9 @@ require_once TRIO_DIR.'/whereis.php';
  * @package 3oLibrary
  * @subpackage HTML
  */
-class HtmlHeading extends HtmlElement{
+class Heading extends HtmlElement{
     public function __construct($level = 1, $content = '', $id = '') {
-        if (!is_numeric($level) || !preg_match('/^[1-6]$/', $level))
+        if (!\is_numeric($level) || !\preg_match('/^[1-6]$/', $level))
         {
             $id = $content;
             $content = $level;

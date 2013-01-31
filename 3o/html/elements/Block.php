@@ -1,14 +1,14 @@
 <?php
-
-require_once TRIO_DIR.'/whereis.php';
+namespace trio\html;
+require_once \TRIO_DIR.'/framework.php';
 
 /**
- * A page Section (div)
+ * A Block level element (usually a div or form)
  * @author Cornel Borina <cornel@scoalaweb.com>
  * @package 3oLibrary
  * @subpackage HTML
  */
-class HtmlBlock extends HtmlElement{
+class Block extends HtmlElement{
 
     private static $allowed_types = array(
         'div',
@@ -29,7 +29,7 @@ class HtmlBlock extends HtmlElement{
     public function __construct($type = 'div', $id = '') {
         if (!in_array($type, self::$allowed_types))
         {
-            throw new BadMethodCallException('Check the documentation or the TriO source code for alowed block level elements');
+            throw new \BadMethodCallException('Check the documentation or the TriO source code for alowed block level elements');
         }
         parent::__construct($type, $id);
     }
