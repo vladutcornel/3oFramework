@@ -1,6 +1,5 @@
 <?php
 
-use BadMethodCallException;
 require_once TRIO_DIR.'/framework-core.php';
 /**
  * The basic library. implements the methods that should be loaded by any other 
@@ -143,11 +142,32 @@ class TObject{
         throw new LogicException;
     }
     
-    /**
+    public function __isset($name) {
+        return isset($this->_prop[$name]);
+    }
+
+        /**
      * No Operation. 
      * This can be used to take advantage of the whereis mechanism and load
-     * classes without actually using them just yet .
+     * classes without actually using them just yet.
      * You probably shouldn't abuse this feature.
+     * 
+     * This can be usefull if a file contains more than one class and you only 
+     * need the one that is not registered with Whereis
      */
     public static function noop(){}
+    
+    /**
+     * Create a new object of the current class and return it. Parameters can be 
+     * passed to the constructor.
+     * This only exists because constructions like "(new class)->method()" 
+     * (new object dereference) are illegal before PHP 5.4.
+     * 
+     * @deprecated since version PHP 5.4
+     */
+    public static function create(){
+        $class = new ReflectionClass(get_called_class());
+        return $class->newInstanceArgs(func_get_args());
+        
+    }
 }

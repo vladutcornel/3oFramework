@@ -39,7 +39,7 @@ class Whereis{
             {  
                 $new_args[$args[$i-1]] = $args[$i];  
             }  
-            trio_whereis($new_args);  
+            self::register($new_args);  
             return;  
         }
         

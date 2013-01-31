@@ -24,12 +24,6 @@ class TOCore {
      */
     public static $params = array();
 
-    /**
-     * 
-     * @var the request params
-     * @see http://php.net/manual/en/function.parse-url.php
-     */
-    public static $request;
 
     /**
      * The file name for the file loaded by the current script
@@ -48,6 +42,12 @@ class TOCore {
      * @var string
      */
     public static $main_class = '';
+    
+    /**
+     * The main object used to render the page
+     * @var object
+     */
+    public static $root = null;
     
     /**
      * List of prefixes for the main class.
@@ -110,9 +110,10 @@ class TOCore {
         } else {
             // no luck so far, we try loading the parent directory
             $parent_dir = implode('/', array_slice($parts, 0, -1));
-            if ($parent_dir != '') {
-                $slice = array_slice($parts, -1);
+            $slice = array_slice($parts, -1);
+            if ('' != $slice[0])
                 array_unshift(self::$params, $slice[0]);
+            if ($parent_dir != '') {
                 return self::load($parent_dir);
             }
 
@@ -235,6 +236,8 @@ class TOCore {
                     throw new TOCoreException(self::$file, TOCoreException::NO_MAIN);
             }
         }
+        
+        return $page;
 
     }
 
@@ -283,7 +286,7 @@ class TOCore {
 
         if (static::find_main_class()) {
             
-            self::parse(new static::$main_class(static::$params));
+            self::$root = self::parse(new static::$main_class(static::$params));
             
         } else {
             // The class is not declared

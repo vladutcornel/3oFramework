@@ -188,27 +188,61 @@ abstract class TUtil{
     }
     
     /**
+     * Get Client's IP address
+     * if not otherwise specified and available, the address within the LAN will 
+     * be returned. As a fallback or if the global IP is specified, the client's 
+     * global accesible IP will be returned ($_SERVER[REMOTE_ADDR])
+     * @param boolean $global set to true if $_SERVER[RENOTE_ADDR] should be returned
+     * @return string 
+     */
+    public static function getIP($global = false){
+        if ($global){
+            return TGlobal::server('REMOTE_ADDR','UNKNOWN');
+        }
+        
+        return TGlobal::server('HTTP_CLIENT_IP',
+                TGlobal::server('HTTP_X_FORWARDED_FOR',
+                        TGlobal::server('HTTP_X_FORWARDED',
+                                TGlobal::server('HTTP_FORWARDED',
+                                        TGlobal::server('REMOTE_ADDR',
+                                            'UNKNOWN'
+                                        )
+                                )
+                        )
+                )
+               );
+    }
+    
+    /**
      * Return the Mime Type of a file using the best method available.
      * it is based on UNIX file command, but will fallback to a 
      * extension-based guessing on Windows or other systems
      * @param string $file the file (it must exist)
+     * @param bool $strict On Linux servers, this will return a more strict mime type
      * @return string a mime type like "image/png"
      */
-    public static function getMimeType($file){
+    public static function getMimeType($file, $strict = FALSE){
         // for invalid files, guess based on the extension
         if (!file_exists($file)){
             return self::guessMimeType($file);
         }
         
         //try the UNIX file command to get something like "text/html; charset=utf-8"
-        $file_data = exec('file -bi "'.addcslashes ($file,'"').'"');
+        if ($strict)
+            $file_data = exec('file -bi "'.addcslashes ($file,'"').'"');
+        else
+            $file_data = exec('mimetype "'.addcslashes ($file,'"').'"');
+        
         if (!$file_data){
             // the sistem does not have the file comand (it's not UNIX)
             return self::guessMimeType($file);
         }
-        // $file_data should be something like "text/html; charset=utf-8"
-        list($type) = explode(';', $file_data);
-        $valid = preg_match('#^(?P<type>[a-z\-\+]+/[a-z\-\+]+)#i', $file_data, $matches);
+        // $file_data should be something like "text/html; charset=utf-8" in strict mode
+        $components = explode($strict?';':':', $file_data);
+        $usefull = $strict? array_shift($components)
+            // in normal mode, it's something like "/file/path: mime/type"
+            : array_pop($components);
+        $valid = preg_match('#(?P<type>[a-z\-\+]+/[a-z\-\+]+)#i', $usefull, $matches);
         if (!$valid){
             // for some reason, the mime could not be determined, so we guess it
             return self::guessMimeType($file);
