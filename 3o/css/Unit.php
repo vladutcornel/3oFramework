@@ -1,6 +1,7 @@
 <?php
 
-require_once TRIO_DIR.'/whereis.php';
+namespace trio\css;
+require_once \TRIO_DIR.'/framework.php';
 
 /**
  * A helper class to store a valid CSS size
@@ -8,7 +9,7 @@ require_once TRIO_DIR.'/whereis.php';
  * @package 3oLibrary
  * @subpackage CSS
  */
-class CSSUnit {
+class Unit {
     // unit groups
     const PERCENT = 0;
     const EM = 1;
@@ -39,13 +40,13 @@ class CSSUnit {
     );
 
     public function __construct($unit = '') {
-        if (is_numeric($unit))
+        if (\is_numeric($unit))
         {
             $unit = $unit.'px';
         }
         static $css_units;
         if (!isset($css_units) || empty($css_units))
-            $css_units = implode('|', array(
+            $css_units = \implode('|', array(
                 '%',
                 'px',
                 'pixels?',
@@ -64,12 +65,11 @@ class CSSUnit {
                 'pica(s)?'
             ));
 
-        $valid = preg_match('/(?P<size>[0-9]+((.|,)[0-9]+)?)\s*(?P<unit>'.$css_units.')?/', $unit, $matches);
-        //$valid = preg_match('/(?P<size>[0-9]+)/i', $unit, $matches);
-        var_dump($unit, $valid, $matches);
+        $valid = \preg_match('/(?P<size>[0-9]+((.|,)[0-9]+)?)\s*(?P<unit>'.$css_units.')?/', $unit, $matches);
+        
         if ($valid)
         {
-            $this->size = (float) str_replace(',', '.', $matches['size'] );
+            $this->size = (float) \str_replace(',', '.', $matches['size'] );
             if (isset($matches['unit']))
             {
                 switch ($matches['unit']) {
