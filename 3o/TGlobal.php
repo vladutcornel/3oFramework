@@ -257,25 +257,25 @@ class TGlobal {
     }
 
     /**
-     * get enviroment variables ($_ENV)
+     * Get enviroment variables ($_ENV)
      * @param string $param
      * @return string
      */
-    public static function env($param) {
+    public static function env($param, $default = '') {
         if (!isset($_ENV[$param]))
-            return "";
+            return $default;
         else
             return $_ENV[$param];
     }
 
     /**
      * Get Server variables ($_SERVER)
-     * @param type $param
+     * @param string $param
      * @return string
      */
-    public static function server($param) {
+    public static function server($param, $default = '') {
         if (!isset($_SERVER[$param]))
-            return "";
+            return $default;
         else
             return $_SERVER[$param];
     }
@@ -285,11 +285,31 @@ class TGlobal {
      * @param string $param
      * @return boolean|array false if there is no file
      */
-    public static function file($param) {
+    public static function files($param) {
         if (!isset($_FILES[$param]))
             return false;
-        else
-            return $_FILES[$param];
+        $out = array();
+        if (!is_array($_FILES[$param]['tmp_name'])){
+            $out[]= array(
+                'tmp_name'=>$_FILES[$param]['tmp_name'],
+                'name'=>$_FILES[$param]['name'],
+                'type'=>$_FILES[$param]['type'],
+                'size'=>$_FILES[$param]['size'],
+                'error'=>$_FILES[$param]['error'],
+            );
+        } else {
+            foreach ($_FILES[$param]['tmp_name'] as $key=>$temp){
+                $out[]= array(
+                    'tmp_name'=>$_FILES[$param]['tmp_name'][$key],
+                    'name'=>$_FILES[$param]['name'][$key],
+                    'type'=>$_FILES[$param]['type'][$key],
+                    'size'=>$_FILES[$param]['size'][$key],
+                    'error'=>$_FILES[$param]['error'][$key],
+                );    
+            }
+        }
+        
+        return $out;
     }
 
     /**
